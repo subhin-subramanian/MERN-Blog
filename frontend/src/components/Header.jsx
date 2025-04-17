@@ -4,11 +4,10 @@ import { BiSearchAlt2 } from "react-icons/bi";
 import {FaMoon, FaSun} from 'react-icons/fa'
 import { useState } from "react";
 
-
 function Header() {
 
   return (
-    <div className="p-4 flex flex-wrap justify-between md:py-10  text-blue-800">
+    <div className="px-4 flex flex-wrap justify-between py-5  text-blue-800 shadow-sm">
 
        <Link to='/' className=" self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white">
          <span className="px-3 py-2 bg-gradient-to-r from-blue-700 to-gray-100 rounded-4xl  text-white">Subhin's Blog</span>
