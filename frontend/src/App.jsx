@@ -3,11 +3,11 @@ import SignIn from "./pages/SignIn"
 import Home from "./pages/Home"
 import SignUp from "./pages/SignUp"
 import Header from "./components/Header"
-import Footer from "./components/Footer"
 import DashBoard from "./pages/DashBoard"
 import CreatePost from "./pages/CreatePost"
 import UpdatePost from "./pages/UpdatePost"
 import PostPage from "./pages/PostPage"
+import FooterComp from "./components/FooterComp"
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
         <Route path="/create-post" element={<CreatePost/>}/>
         <Route path="/update-post" element={<UpdatePost/>}/>
       </Routes>
-      <Footer/>
+      <FooterComp/>
     </BrowserRouter>
   )
 }
