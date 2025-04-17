@@ -1,12 +1,29 @@
-import { Button, Modal, ModalBody } from 'flowbite-react'
-import React from 'react'
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import SignIn from "./pages/SignIn"
+import Home from "./pages/Home"
+import SignUp from "./pages/SignUp"
+import Header from "./components/Header"
+import Footer from "./components/Footer"
+import DashBoard from "./pages/DashBoard"
+import CreatePost from "./pages/CreatePost"
+import UpdatePost from "./pages/UpdatePost"
+import PostPage from "./pages/PostPage"
 
 function App() {
   return (
-    <div className=''>
-      <Button className="bg-gradient-to-br from-green-400 to-blue-600 text-white hover:bg-gradient-to-bl focus:ring-green-200 dark:focus:ring-green-800">
-      Green to Blue</Button>  
-    </div>
+    <BrowserRouter>
+      <Header/>
+      <Routes>
+        <Route path="/" element={<Home/>}/>
+        <Route path="/sign-in" element={<SignIn/>}/>
+        <Route path="/sign-up" element={<SignUp/>}/>
+        <Route path="/post-page" element={<PostPage/>}/>
+        <Route path="/dashboard" element={<DashBoard/>}/>
+        <Route path="/create-post" element={<CreatePost/>}/>
+        <Route path="/update-post" element={<UpdatePost/>}/>
+      </Routes>
+      <Footer/>
+    </BrowserRouter>
   )
 }
 
