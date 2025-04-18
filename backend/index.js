@@ -5,6 +5,8 @@ import userRouter from "./routes/user.routes.js";
 
 const app = express();
 
+app.use(express.json());
+
 dotenv.config();
 
 // port settings
