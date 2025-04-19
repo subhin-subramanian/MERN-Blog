@@ -1,10 +1,12 @@
-import { Button} from "flowbite-react"
+import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem} from "flowbite-react"
 import { Link } from "react-router-dom"
 import { BiSearchAlt2 } from "react-icons/bi";
-import {FaMoon, FaSun} from 'react-icons/fa'
-import { useState } from "react";
+import {FaMoon} from 'react-icons/fa'
+import { useSelector } from "react-redux";
 
 function Header() {
+
+  const {currentUser} = useSelector(state=>state.user);
 
   return (
     <div className="px-4 flex flex-wrap justify-between py-5  text-blue-800 shadow-sm">
@@ -26,9 +28,29 @@ function Header() {
           <Button className="w-12 h-11 bg-blue-300 text-white rounded-full border border-blue-300 hover:bg-white hover:text-blue-300 transition duration-500 p-3" pill>
             <FaMoon/>
           </Button>
-          <Link to='/sign-in'>
-            <Button className=" border border-blue-300 rounded-lg px-2 bg-blue-300 text-white hover:bg-white hover:text-blue-300 transition duration-500">Sign In</Button>
-          </Link>
+
+          {currentUser ? (
+            <Dropdown arrowIcon={false} inline 
+            label={<Avatar alt="user" img={currentUser.profilePic} rounded/>}>
+
+             <DropdownHeader>
+               <span className="block text-sm">@{currentUser.username}</span>
+               <span className="block text-sm font-medium truncate pt-1">{currentUser.email}</span>
+             </DropdownHeader>
+
+             <Link to={'/dashboard?tab=profile'}>
+              <DropdownItem>Profile</DropdownItem>
+             </Link>
+
+             <DropdownDivider/>
+             <DropdownItem>Sign out</DropdownItem>
+            </Dropdown>
+
+          ):(
+            <Link to='/sign-in'>
+             <Button className=" border border-blue-300 rounded-lg px-2 bg-blue-300 text-white hover:bg-white hover:text-blue-300 transition duration-500">Sign In</Button>
+            </Link>
+          )}         
         </div>
 
     </div>
