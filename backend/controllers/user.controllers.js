@@ -96,3 +96,17 @@ export const updateUser = async (req,res)=>{
         res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
 }
+
+// Deleting the Account
+
+export const deleteUser = async(req,res)=>{
+    if(req.user.id != req.params.userId){
+      return  res.status(401).json("You're not authorized to delete this user");
+    }
+    try {
+      await User.findByIdAndDelete(req.params.userId);
+      res.status(200).json('Account deleted');     
+    } catch (error) {
+        res.status(500).json({success:false,message: error.errmsg || 'server error'});      
+    }
+}

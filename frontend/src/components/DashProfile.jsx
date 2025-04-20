@@ -1,7 +1,9 @@
-import { Alert, Button, TextInput } from 'flowbite-react'
+import { Alert, Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react'
 import { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateFailure, updateStart,  updateSuccess } from '../redux/userSlice';
+import { deleteUserFailure, deleteUserStart, deleteUserSuccess, updateFailure, updateStart,  updateSuccess } from '../redux/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 function DashProfile() {
 
@@ -13,7 +15,10 @@ function DashProfile() {
     const [formData,setFormData] = useState({username:currentUser.username,email:currentUser.email,profilePic:currentUser.profilePic});
     const dispatch = useDispatch();
     const [updateStatus,setUpdateStatus] = useState(false);
+    const [showModal,setShowModal] = useState(false);
+    const navigate = useNavigate();
     
+    // Function for loading new profile picture
     const handleImageChange = (e)=>{
         const file = e.target.files[0];
         if (file.size > (2*1024*1024)){
@@ -25,11 +30,13 @@ function DashProfile() {
             setFormData({...formData,profilePic:imageFileUrl});
         }
     }
-
+    
+    // Function to store formdata
     const handleChange = (e)=>{
         setFormData({...formData,[e.target.id]:e.target.value});
     }
 
+    // Function to call the api for updating profile
     const handleSubmit = async (e)=>{
         e.preventDefault();
         setUpdateStatus(false);
@@ -57,6 +64,25 @@ function DashProfile() {
             dispatch(updateFailure(error.message));         
         }
     }
+
+    // Function to handle delete-account functionality
+
+    const handleDeleteUser = async()=>{
+      setShowModal(false);
+      try {
+        dispatch(deleteUserStart());
+        const response = await fetch(`/api/user/delete/${currentUser._id}`,{method:'DELETE'});
+        const data = await response.json();
+        if(!response.ok){
+          dispatch(deleteUserFailure(data.message));
+        }else{
+          dispatch(deleteUserSuccess(data));
+          navigate('/sign-up');
+        }
+      } catch (error) {
+        dispatch(deleteUserFailure(error.message));
+      }
+    }
     
   return (
     <div className="py-10 mx-auto">
@@ -81,13 +107,30 @@ function DashProfile() {
       </form>
 
       <div className="text-red-600 flex justify-center gap-40 mt-2 text-sm font-semibold">
-        <span className='cursor-pointer'>Delete Account?</span>
+        <span className='cursor-pointer' onClick={()=>setShowModal(true)}>Delete Account?</span>
         <span className='cursor-pointer'>Sign Out</span>
       </div>
 
       {updateStatus&& <Alert color="success" className="flex justify-self-center items-center w-96 mt-4">Profile Updated successfully</Alert>}
 
       {error && <Alert color="failure">{error}</Alert>}
+
+      <Modal show={showModal} onClose={()=>setShowModal(false)} popup size='md'>
+        <ModalHeader className="bg-blue-300">
+          <ModalBody>
+            <div className="text-center">
+              <HiOutlineExclamationCircle className="h-14 w-14 mb-4 mx-auto"/>
+              <h3 className="mb-5 text-lg text-blue-800">Are you sure you want to delete the account?</h3>
+              <div className="flex justify-center gap-5">
+                <Button color='alternative' onClick={handleDeleteUser}>Yes I'm sure</Button>
+                <Button color='default' onClick={()=>setShowModal(false)}>No I'm not</Button>
+              </div>
+            </div>
+          </ModalBody>
+        </ModalHeader>
+
+      </Modal>
+
       
     </div>
   )
