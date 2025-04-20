@@ -1,12 +1,15 @@
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem} from "flowbite-react"
 import { Link } from "react-router-dom"
 import { BiSearchAlt2 } from "react-icons/bi";
-import {FaMoon} from 'react-icons/fa'
-import { useSelector } from "react-redux";
+import {FaMoon,FaSun} from 'react-icons/fa'
+import { useDispatch, useSelector } from "react-redux";
+import { toggleTheme } from "../redux/themeSlice";
 
 function Header() {
 
   const {currentUser} = useSelector(state=>state.user);
+  const dispatch = useDispatch();
+  const {theme} = useSelector(state=>state.theme);
 
   return (
     <div className="px-4 flex flex-wrap justify-between py-5  text-blue-800 shadow-sm">
@@ -19,14 +22,14 @@ function Header() {
          <input
             type="text"
             placeholder="Search..."
-            className="w-full rounded-lg border border-gray-300 py-2 pl-4 pr-10 text-sm focus:border-blue-500 focus:ring-blue-500"/>
+            className="w-full rounded-lg border border-gray-300 py-2 pl-4 pr-10 text-sm focus:border-blue-500 focus:ring-blue-500 dark:text-blue-300"/>
          <BiSearchAlt2 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
        </div>
 
 
         <div className="flex gap-2 items-center justify-center md:mr-20 md:gap-5  ">
-          <Button className="w-12 h-11 bg-blue-300 text-white rounded-full border border-blue-300 hover:bg-white hover:text-blue-300 transition duration-500 p-3" pill>
-            <FaMoon/>
+          <Button className="w-12 h-11 bg-blue-300 text-white rounded-full border border-blue-300 hover:bg-white hover:text-blue-300 p-3" pill onClick={()=>dispatch(toggleTheme())}>
+            {theme === 'light'? <FaMoon/> : <FaSun/>}
           </Button>
 
           {currentUser ? (
