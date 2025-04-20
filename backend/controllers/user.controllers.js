@@ -110,3 +110,13 @@ export const deleteUser = async(req,res)=>{
         res.status(500).json({success:false,message: error.errmsg || 'server error'});      
     }
 }
+
+// Signing out 
+
+export const signOut = async (req,res)=>{
+    try {
+        res.clearCookie('access_token').status(200).json('User has been signed out');
+    } catch (error) {
+        res.status(500).json({success:false,message: error.errmsg || 'server error'});
+    }
+}
