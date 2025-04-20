@@ -9,6 +9,7 @@ import UpdatePost from "./pages/UpdatePost"
 import PostPage from "./pages/PostPage"
 import FooterComp from "./components/FooterComp"
 import './index.css'
+import PrivateRoute from "./components/PrivateRoute"
 
 function App() {
   return (
@@ -19,7 +20,9 @@ function App() {
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>
         <Route path="/post-page" element={<PostPage/>}/>
-        <Route path="/dashboard" element={<DashBoard/>}/>
+        <Route element={<PrivateRoute/>}>
+          <Route path="/dashboard" element={<DashBoard/>}/>
+        </Route>
         <Route path="/create-post" element={<CreatePost/>}/>
         <Route path="/update-post" element={<UpdatePost/>}/>
       </Routes>

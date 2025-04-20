@@ -2,8 +2,7 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 
 function ThemeProvider({children}) {
-    const {theme} = useSelector(state=>state.theme)
-    console.log(theme );
+    const {theme} = useSelector(state=>state.theme);
     
   return (
     <div className={theme}>
