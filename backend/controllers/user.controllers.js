@@ -66,3 +66,33 @@ export const signIn = async (req,res)=>{
         res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
 }
+
+// Updating the user profile
+
+export const updateUser = async (req,res)=>{
+
+    if(req.user.id !== req.params.userId){
+        return  res.status(401).json("You're not authorized to update this user");
+    }
+
+    if(req.body.password){
+        if(req.body.password.length <6){
+            return res.status(402).json("Password must be more than 6 characters");
+        }
+        req.body.password = bcryptjs.hashSync(req.body.password,10);
+    }
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(req.params.userId,{
+            $set:{
+                username:req.body.username,
+                email:req.body.email,
+                password:req.body.password,
+                profilePic:req.body.profilePic}
+        },{new:true});
+        const {password,...rest} = updatedUser._doc;
+        res.status(200).json(rest);
+    } catch (error) {
+        res.status(500).json({success:false,message: error.errmsg || 'server error'});
+    }
+}
