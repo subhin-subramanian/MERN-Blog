@@ -2,14 +2,12 @@ import { Alert, Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbit
 import { useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutFailure, signOutSuccess, updateFailure, updateStart,  updateSuccess } from '../redux/userSlice';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
 
 function DashProfile() {
 
     const {currentUser,error,loading} = useSelector(state=>state.user);
-    const [imageFile,setImageFile] = useState(null);
-    const [imageFileUrl,setImageFileUrl] = useState(null);
     const [imageUploadError,setImageUploadError] = useState(null);
     const filePickRef = useRef();
     const [formData,setFormData] = useState({username:currentUser.username,email:currentUser.email,profilePic:currentUser.profilePic});
@@ -19,15 +17,26 @@ function DashProfile() {
     const navigate = useNavigate();
     
     // Function for loading new profile picture
-    const handleImageChange = (e)=>{
+    const handleImageChange = async (e)=>{
+        setImageUploadError(null);
         const file = e.target.files[0];
+        if(!file) return;
         if (file.size > (2*1024*1024)){
             return setImageUploadError("Image size must be less than 2mb");
         }
-        if(file){
-            setImageFile(file);
-            setImageFileUrl(URL.createObjectURL(file));
-            setFormData({...formData,profilePic:imageFileUrl});
+        // Uploading image to backend
+        const formDataImg = new FormData();
+        formDataImg.append('image',file);
+        try {
+          const res = await fetch('/api/upload',{method:'POST',body:formDataImg});
+          const data = await res.json();
+          if(data.imageUrl){
+            console.log(data.imageUrl);
+            
+            setFormData({...formData,profilePic: data.imageUrl});
+          }
+        } catch (error) {
+          setImageUploadError('Upload failed:'+err);
         }
     }
     
@@ -43,9 +52,8 @@ function DashProfile() {
         if(formData.username === '' || formData.email==='' || formData.password===''){
             return console.log("All fields are required")
           }
-        setFormData({...formData,profilePic: imageFileUrl || currentUser.profilePic});
-        console.log(formData);
-        
+
+        // updating and saving to database
         try {
             dispatch(updateStart());
             const response = await fetch(`/api/user/update/${currentUser._id}`,{
@@ -109,7 +117,7 @@ function DashProfile() {
       <form className="flex flex-col items-center gap-5" onSubmit={handleSubmit}>
         <input type="file" accept='image/*' onChange={handleImageChange} ref={filePickRef} hidden/>
         <div className="w-32 h-32 rounded-full mt-5 self-center cursor-pointer shadow-md" onClick={()=>filePickRef.current.click()} >
-          <img src={imageFileUrl || currentUser.profilePic} alt="User" className="w-full h-full rounded-full border-3 " id="profilePic"/>
+          <img src={formData.profilePic || currentUser.profilePic} alt="User" className="w-full h-full rounded-full border-3 " id="profilePic"/>
         </div>
 
         { imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
@@ -120,7 +128,12 @@ function DashProfile() {
 
         <TextInput className="w-80"  type='password' placeholder='password' id='password' onChange={handleChange}/>
 
-        <Button className="w-80 bg-gradient-to-r from-blue-700 to-green-400"  type='submit'>Update</Button>
+        <Button className="w-80 bg-gradient-to-r from-blue-700 to-green-400"  type='submit' disabled={loading}>{loading ? 'Loading...' : 'Update'}</Button>
+
+        {currentUser.isAdmin &&
+        <Link to={'/create-post'}>
+          <Button className="w-80 bg-gradient-to-r from-green-400 to-blue-700 " >Create a Post</Button>
+        </Link>}
       </form>
 
       <div className="text-red-600 flex justify-center gap-40 mt-2 text-sm font-semibold">

@@ -3,11 +3,23 @@ import mongoose from "mongoose";
 import dotenv from 'dotenv'
 import userRouter from "./routes/user.routes.js";
 import cookieParser from "cookie-parser";
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import uploadRoutes from './routes/upload.js'
 
 const app = express();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 dotenv.config();
 
@@ -23,3 +35,4 @@ mongoose.connect(process.env.MONGO)
 
 // Api endpoints
 app.use('/api/user',userRouter);
+app.use('/api/upload', uploadRoutes);
