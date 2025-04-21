@@ -16,7 +16,7 @@ function DashProfile() {
     const [showModal,setShowModal] = useState(false);
     const navigate = useNavigate();
     
-    // Function for loading new profile picture
+    // Function for uploading new profile picture
     const handleImageChange = async (e)=>{
         setImageUploadError(null);
         const file = e.target.files[0];
@@ -30,9 +30,7 @@ function DashProfile() {
         try {
           const res = await fetch('/api/upload',{method:'POST',body:formDataImg});
           const data = await res.json();
-          if(data.imageUrl){
-            console.log(data.imageUrl);
-            
+          if(data.imageUrl){ 
             setFormData({...formData,profilePic: data.imageUrl});
           }
         } catch (error) {
@@ -128,11 +126,11 @@ function DashProfile() {
 
         <TextInput className="w-80"  type='password' placeholder='password' id='password' onChange={handleChange}/>
 
-        <Button className="w-80 bg-gradient-to-r from-blue-700 to-green-400"  type='submit' disabled={loading}>{loading ? 'Loading...' : 'Update'}</Button>
+        <Button className="w-80 hover:bg-gradient-to-r from-blue-700 to-green-400" outline  type='submit' disabled={loading}>{loading ? 'Loading...' : 'Update'}</Button>
 
         {currentUser.isAdmin &&
         <Link to={'/create-post'}>
-          <Button className="w-80 bg-gradient-to-r from-green-400 to-blue-700 " >Create a Post</Button>
+          <Button className="w-80 bg-gradient-to-r from-green-400 to-blue-700">Create a Post</Button>
         </Link>}
       </form>
 
