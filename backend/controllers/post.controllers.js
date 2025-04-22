@@ -62,3 +62,24 @@ export const deletePost = async(req,res)=>{
         res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
 }
+
+// function to edit a post
+export const updatePost = async(req,res)=>{
+    if(!req.user.isAdmin || req.user.id !== req.params.userId ){
+        return res.status(407).json("You can't edit the post");
+    }
+    try {
+      const updatedPost = await Post.findByIdAndUpdate(req.params.postId,{
+        $set:{
+            title:req.body.title,
+            category:req.body.category,
+            image:req.body.image,
+            content:req.body.content
+        }
+      },{new:true});
+      res.status(200).json(updatedPost);
+    } catch (error) {
+        res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
+    }
+
+}

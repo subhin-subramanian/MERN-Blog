@@ -24,7 +24,7 @@ function App() {
           <Route path="/dashboard" element={<DashBoard/>}/>
         </Route>
         <Route path="/create-post" element={<CreatePost/>}/>
-        <Route path="/update-post" element={<UpdatePost/>}/>
+        <Route path="/update-post/:postId" element={<UpdatePost/>}/>
       </Routes>
       <FooterComp/>
     </BrowserRouter>

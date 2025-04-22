@@ -91,9 +91,8 @@ function CreatePost() {
         <Button type="submit" className="bg-gradient-to-r from-blue-700 to-green-400">Publish</Button>
 
       </form>
-
+      {publishError && <Alert color='failure' >{publishError}</Alert>}
     </div>
   )
 }
-
 export default CreatePost
