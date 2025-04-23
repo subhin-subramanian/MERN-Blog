@@ -19,7 +19,7 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>
-        <Route path="/post-page" element={<PostPage/>}/>
+        <Route path="/post/:postSlug" element={<PostPage/>}/>
         <Route element={<PrivateRoute/>}>
           <Route path="/dashboard" element={<DashBoard/>}/>
         </Route>

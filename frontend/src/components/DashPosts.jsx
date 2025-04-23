@@ -14,7 +14,7 @@ function DashPosts() {
   const [showModal,setShowModal] = useState(false);
   const [postIdDelete,setPostIdDelete] = useState(null);
 
-  // Fetchposts function with useEffect the posts while opening the page
+  // Fetchposts function with useEffect for getting the posts while opening the page
   useEffect(()=>{
     const fetchPosts = async ()=>{
       setPostsError(null);
