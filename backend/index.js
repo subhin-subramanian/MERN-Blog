@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import uploadRoutes from './routes/upload.js'
 import postRouter from "./routes/post.routes.js";
+import commentRouter from "./routes/comment.route.js";
 
 const app = express();
 
@@ -38,3 +39,4 @@ mongoose.connect(process.env.MONGO)
 app.use('/api/user',userRouter);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/post',postRouter);
+app.use('/api/comment',commentRouter);
