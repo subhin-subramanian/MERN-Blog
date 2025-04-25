@@ -30,7 +30,7 @@ function DashBoard() {
       </div>
 
       {/* DashBoardComp */}
-      {tab === 'dash  ' && <DashBoardComp/>} 
+      {tab === 'dash' && <DashBoardComp/>} 
 
       {/* Profile */}
       {tab === 'profile' && <DashProfile/>}

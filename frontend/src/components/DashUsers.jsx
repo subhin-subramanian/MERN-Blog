@@ -90,7 +90,7 @@ function DashUsers() {
             {users.map(user=>(
               <TableRow key={user._id} className="shadow-sm">
                 <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
-                <TableCell><img src={user.profilePic} alt="user-img" className="w-20 h-10 object-cover" /></TableCell>
+                <TableCell><img src={user.profilePic} alt="user-img" className="w-10 h-10 object-cover rounded-full" /></TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
                 <TableCell>{user.isAdmin ?<FaCheck className="text-green-500"/> : <FaTimes className="text-red-500"/>}</TableCell>
