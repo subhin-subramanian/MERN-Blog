@@ -1,15 +1,35 @@
 import { Avatar, Button, Dropdown, DropdownDivider, DropdownHeader, DropdownItem} from "flowbite-react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { BiSearchAlt2 } from "react-icons/bi";
 import {FaMoon,FaSun} from 'react-icons/fa'
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../redux/themeSlice";
+import { signOutFailure, signOutSuccess } from "../redux/userSlice";
 
 function Header() {
 
   const {currentUser} = useSelector(state=>state.user);
   const dispatch = useDispatch();
   const {theme} = useSelector(state=>state.theme);
+  const navigate = useNavigate();
+
+  
+  // Function for signing out
+  const handleSignOut = async()=>{
+    try {
+      const response = await fetch(`/api/user/sign-out`,{method:'POST'});
+      const data = await response.json();
+      if(!response.ok){
+        console.log(data.message);
+      }else{
+        dispatch(signOutSuccess(data));
+        navigate('/sign-up');
+      }
+    } catch (error) {
+      dispatch(signOutFailure(error.message));
+      console.log(error.message);
+    }
+  }
 
   return (
     <div className="px-4 flex flex-wrap justify-between py-5  text-blue-800 shadow-sm">
@@ -46,7 +66,7 @@ function Header() {
              </Link>
 
              <DropdownDivider/>
-             <DropdownItem>Sign out</DropdownItem>
+             <DropdownItem onClick={handleSignOut}>Sign out</DropdownItem>
             </Dropdown>
 
           ):(
