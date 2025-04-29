@@ -2,6 +2,8 @@ import { Button, FileInput, Select, Textarea, TextInput } from "flowbite-react"
 import { useState } from "react"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 function CreatePost() {
 
@@ -46,6 +48,8 @@ function CreatePost() {
   const handleSubmit = async(e)=>{
     e.preventDefault();
     setPublishError(null);
+    console.log(formData);
+    
     try {
       const res = await fetch(`/api/post/create`,{
         method:'POST',
@@ -87,7 +91,8 @@ function CreatePost() {
         {imageUploadError && <Alert color='failure' >{imageUploadError}</Alert>}
         {formData.image && <img src={formData.image} alt='upload' className='w-full h-72 object-cover'/>}
 
-        <Textarea id="content" className="h-72" placeholder="Write something..." required onChange={handleChange}/>
+        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72" onChange={(e)=>setFormData({...formData,content:e})} />
+    
         <Button type="submit" className="bg-gradient-to-r from-blue-700 to-green-400">Publish</Button>
 
       </form>

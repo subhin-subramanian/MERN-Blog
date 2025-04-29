@@ -2,6 +2,8 @@ import { Alert, Button, FileInput, Select, Textarea, TextInput } from "flowbite-
 import { useEffect, useState } from "react"
 import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 function UpdatePost() {
   const [formData,setFormData] = useState({ title: '',
@@ -14,6 +16,8 @@ function UpdatePost() {
   const {currentUser} = useSelector(state=>state.user);
   const navigate = useNavigate();
   const {postId} = useParams();
+  console.log(formData);
+  
 
   // Function to get the existing post data and useEffect to default rendering
   useEffect(()=>{
@@ -70,7 +74,7 @@ function UpdatePost() {
     e.preventDefault();
     setUpdateError(null);
     try {
-      const res = await fetch(`/api/post/update/${formData._id}/${currentUser._id}`,{
+      const res = await fetch(`/api/post/update/${postId}/${currentUser._id}`,{
         method:'PUT',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(formData)
@@ -95,7 +99,7 @@ function UpdatePost() {
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} >
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <TextInput type="text" placeholder="Title" required id="title" className="flex-1" value={formData.title} onChange={handleChange}/>
-          <Select id="category" onChange={handleChange} value={formData.category}>
+          <Select id="category" onChange={handleChange} value={formData.category} className="w-40">
             <option value="Uncategorized">Select a Category</option>
             <option value="javascript">JavaScript</option>
             <option value="reactjs">React.js</option>
@@ -111,7 +115,8 @@ function UpdatePost() {
         {imageUploadError && <Alert color='failure' >{imageUploadError}</Alert>}
         {formData.image && <img src={formData.image} alt='upload' className='w-full h-72 object-cover'/>}
 
-        <Textarea id="content" className="h-72" placeholder="Write something..." required value={formData.content} onChange={handleChange}/>
+        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72" onChange={(e)=>setFormData({...formData,content:e})} />
+
         <Button type="submit" className="bg-gradient-to-r from-blue-700 to-green-400" >Update</Button>
       </form>
 
