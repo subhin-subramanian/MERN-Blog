@@ -6,20 +6,23 @@ function Home() {
   const [posts,setPosts] = useState([]);
   const [postsError,setPostsError] = useState(null);
   const [showMore,setShowMore] = useState(false);
+  const [category,setCategory] = useState(null);
+  console.log(category);
+  
 
   useEffect(()=>{
     const fetchPosts = async()=>{
       setPostsError(null);
       try {
-        const res = await fetch(`/api/post/getposts?limit=8`);
+        const res = await (category ? fetch(`/api/post/getposts?limit=8&category=${category}`) : fetch(`/api/post/getposts?limit=8`));
         const data = await res.json();
         if(!res.ok){
           setPostsError(data.message);
           return;
         }
-        if(data.totalPosts > 8){   
+        if(data.posts.length === 8){   
           setShowMore(true);
-        }
+        }else setShowMore(false);
         setPosts(data.posts);
       } catch (error) {
         setPostsError(error.message);        
@@ -27,7 +30,7 @@ function Home() {
 
     }
     fetchPosts();
-  },[]);
+  },[category]);
 
   // Function to fetch more posts onclicking show more 
   const handleShowMore = async()=>{
@@ -38,7 +41,7 @@ function Home() {
         setPostsError(data.message);
         return;
       }
-      if(data.totalPosts > 16){   
+      if(data.posts.length === 8){   
         setShowMore(true);
       }else{
         setShowMore(false);
@@ -69,16 +72,17 @@ function Home() {
       <p className="text-center text-sm mb-10">Subscribe to get notifications, when a blog publishes.</p>
 
       <div className="flex gap-5 justify-center py-10 font-bold">
-        <Button className="h-7 rounded-full bg-blue-900">All</Button>
-        <Button className="h-7 rounded-full bg-blue-900">JavaScript</Button>
-        <Button className="h-7 rounded-full bg-blue-900">React</Button>
-        <Button className="h-7 rounded-full bg-blue-900">NextJs</Button>
+        <Button className="h-7 rounded-full bg-blue-900" onClick={()=>setCategory(null)}>All</Button>
+        <Button className="h-7 rounded-full bg-blue-900" onClick={()=>setCategory('javascript')}>JavaScript</Button>
+        <Button className="h-7 rounded-full bg-blue-900" onClick={()=>setCategory('reactjs')}>ReactJs</Button>
+        <Button className="h-7 rounded-full bg-blue-900" onClick={()=>setCategory('nextjs')}>NextJs</Button>
+        <Button className="h-7 rounded-full bg-blue-900" onClick={()=>setCategory('uncategorized')}>Uncategorized</Button>
       </div>
-
-     <div className="grid grid-cols-1 ml-20 sm:ml-10 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
-     {posts.map(post=>(<PostCard key={post._id} post={post}/>))}
-     </div>
-     {showMore && <button onClick={handleShowMore} className="hover:underline flex mx-auto py-3 font-semibold cursor-pointer">Show More</button>}
+      {posts.length===0 ? <h1 className="flex justify-center p-10 font-semibold text-3xl text-green-400">No Posts...</h1>:
+        <div className="grid grid-cols-1 ml-20 sm:ml-10 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+        {posts.map(post=>(<PostCard key={post._id} post={post}/>))}
+        </div>}
+      {showMore && <button onClick={handleShowMore} className="hover:underline flex mx-auto py-3 font-semibold cursor-pointer">Show More</button>}
      {postsError && <Alert color="failure">{postsError}</Alert>}
 
     </div>
