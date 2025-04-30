@@ -15,6 +15,9 @@ const app = express();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+// For rendering
+const __rendirname = path.resolve();
+
 
 app.use(express.json());
 app.use(cookieParser());
@@ -40,3 +43,9 @@ app.use('/api/user',userRouter);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/post',postRouter);
 app.use('/api/comment',commentRouter);
+
+// For rendering
+app.use(express.static(path.join(__rendirname,'/frontend/dist')));
+app.get('*',(req,res)=>{
+    res.sendFile(path.join(__rendirname,'frontend','dist','index.html'));
+})
