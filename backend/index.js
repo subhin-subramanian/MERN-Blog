@@ -19,6 +19,7 @@ const __dirname = dirname(__filename);
 const __rendirname = path.resolve();
 
 
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors());
@@ -46,6 +47,6 @@ app.use('/api/comment',commentRouter);
 
 // For rendering
 app.use(express.static(path.join(__rendirname,'/frontend/dist')));
-app.get('*',(req,res)=>{
+app.get('/*name',(req,res)=>{
     res.sendFile(path.join(__rendirname,'frontend','dist','index.html'));
-})
+});
