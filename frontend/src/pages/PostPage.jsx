@@ -44,7 +44,7 @@ function PostPage() {
       <Link to={`/search?category=${post && post.category}`} className='self-center mt-5'>
         <Button color='default' pill size='xs'>{post && post.category}</Button>
       </Link>
-      <img src={post && post.image} alt='image' className='max-h-[300px] w-full object-cover mt-10 p-3' />
+      <img src={post && post.image} alt='image' className='max-h-[300px] w-ful mt-10 p-3' />
       <div className="flex justify-between p-2 border-b border-blue-300">
         <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
         <span>{post.content && (post.content.length/1000).toFixed(0)} mins read</span>

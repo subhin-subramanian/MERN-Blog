@@ -16,7 +16,6 @@ function DashUsers() {
   useEffect(()=>{
     const fetchUsers = async()=>{
       setUsersError(null);
-      console.log('reached');
       try {        
         const res = await fetch('/api/user/getusers');
         const data = await res.json();

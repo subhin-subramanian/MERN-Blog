@@ -11,20 +11,23 @@ function Search() {
     const location = useLocation();
     const navigate = useNavigate();
     const [showMore,setShowMore] = useState(false);
-    console.log(posts);
     
-
     // Fetching posts as per searchQuery for page
     useEffect(()=>{
         const urlParams = new URLSearchParams(location.search);
-        const searchUrl = urlParams.get('searchTerm');
-        const sortUrl = urlParams.get('sort');
-        const categoryUrl = urlParams.get('category');
-        setSidebarData({...sidebarData,searchTerm:searchUrl,sort:sortUrl,category:categoryUrl});
+        const searchUrl = urlParams.get("searchTerm") || "";
+        const sortUrl = urlParams.get("sort") || "desc";
+        const categoryUrl = urlParams.get("category") || "uncategorized"; 
+
+        setSidebarData({
+          searchTerm: searchUrl,
+          sort: sortUrl,
+          category: categoryUrl,
+        });
 
         const fetchPosts = async()=>{
             setLoading(true);
-            const searchQuery = urlParams.toString();
+            const searchQuery = urlParams.toString();         
             const res = await fetch(`/api/post/getposts?${searchQuery}`);
             const data = await res.json();
             if(!res.ok){
@@ -43,7 +46,7 @@ function Search() {
 
     // Function to handle the show more button
     const handleShowMore = async ()=>{
-      const urlParams = new URLSearchParams(location.search);
+      const urlParams = new URLSearchParams(location.search);   
       urlParams.set('startIndex',9);
       const searchQuery = urlParams.toString();
       try {
@@ -53,8 +56,11 @@ function Search() {
             console.log(data.message);
             return;
         }
-        setPosts([...posts,...data.posts]);
-        if(data.posts.length > 18){
+        setPosts((prev) => {
+          const updated = [...prev, ...data.posts];
+          return updated;
+        });
+        if(data.posts.length >= 9){
             setShowMore(true);
         }else{
             setShowMore(false);
@@ -64,7 +70,6 @@ function Search() {
       }
     }
     
-
     // Function to reset sidebardata when we type in filters
     const handleChange = (e)=>{
         if(e.target.id==='searchTerm'){
@@ -120,7 +125,7 @@ function Search() {
       {/* Post cards */}
       <div className="w-full">
         <h1 className="text-3xl font-semibold sm:border-b  border-blue-300 dark:border-blue-800 shadow-sm  p-3 mt-5">Post Results:</h1>
-        <div className="grid grid-cols-1 ml-14 md:ml-0 md:grid-cols-2 lg:grid-cols-3 p-10 gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-10 gap-7 place-items-center"> 
             {!loading && posts.length===0 && (<p className="text-xl">No posts found!</p>)}
             {loading && <p className="text-xl">Loading...</p>}
             {!loading && posts && posts.map((post)=><PostCard key={post._id} post={post}/>)}

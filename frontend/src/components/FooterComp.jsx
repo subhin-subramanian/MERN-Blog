@@ -4,7 +4,7 @@ import { FaFacebook,FaInstagram,FaTwitter,FaGithub,FaDribbble } from "react-icon
 
 function FooterComp() {
   return (
-    <Footer container className='border border-t-8 border-blue-800 md:grid grid-cols-1'>
+    <Footer container className='border border-t-8 border-blue-800 md:grid grid-cols-1 bg-gray-100'>
 
       <Link to='/' className=" self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white">
          <span className="px-3 py-2 bg-gradient-to-r from-blue-700 to-gray-100 rounded-4xl  text-white ">Subhin's Blog</span>

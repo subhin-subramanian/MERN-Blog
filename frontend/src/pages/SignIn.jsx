@@ -27,17 +27,17 @@ function SignIn() {
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(formData)
       });
-      const data = await response.json();
-      if (data.success === false){
-        dispatch(signInFailure(data.message));
-        return;
-      }
+      const data = await response.json(); 
       if(response.ok){
         dispatch(signInSuccess(data.rest));
         navigate('/')
       } 
+      if(!response.ok){
+        dispatch(signInFailure(data));       
+        return;
+      }
     } catch (error) {
-      dispatch(signInFailure(error.message));
+      dispatch(signInFailure(error.message));   
     }
   }
   
@@ -73,7 +73,7 @@ function SignIn() {
             {loading ?(
               <>
                <Spinner size='sm'/>
-                <span className='pl-'>Loading...</span>
+                <span>Loading...</span>
               </>
             ) :('Sign In')}</Button>
                     

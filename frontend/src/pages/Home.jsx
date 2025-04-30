@@ -7,9 +7,7 @@ function Home() {
   const [postsError,setPostsError] = useState(null);
   const [showMore,setShowMore] = useState(false);
   const [category,setCategory] = useState(null);
-  console.log(category);
   
-
   useEffect(()=>{
     const fetchPosts = async()=>{
       setPostsError(null);

@@ -10,6 +10,7 @@ import PostPage from "./pages/PostPage"
 import FooterComp from "./components/FooterComp"
 import './index.css'
 import PrivateRoute from "./components/PrivateRoute"
+import Search from "./pages/Search"
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
         </Route>
         <Route path="/create-post" element={<CreatePost/>}/>
         <Route path="/update-post/:postId" element={<UpdatePost/>}/>
+        <Route path="/search" element={<Search/>}/>
       </Routes>
       <FooterComp/>
     </BrowserRouter>
