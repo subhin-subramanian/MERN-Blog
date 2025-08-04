@@ -36,7 +36,6 @@ export const signUp = async(req,res)=>{
 }
 
 // Function for sign-in route   
-
 export const signIn = async (req,res)=>{
     const {username,password} = req.body;
     if(!username || !password || password === '' || username === ''){
@@ -44,7 +43,6 @@ export const signIn = async (req,res)=>{
     }
  
     try {
-
         // Checking with email, if user exists proceeds further otherwise returns
         const validUser = await User.findOne({username});
         if (!validUser){
@@ -68,7 +66,6 @@ export const signIn = async (req,res)=>{
 }
 
 // Updating the user profile
-
 export const updateUser = async (req,res)=>{
 
     if(req.user.id !== req.params.userId){
@@ -98,14 +95,11 @@ export const updateUser = async (req,res)=>{
 }
 
 // Deleting the Account
-
 export const deleteUser = async(req,res)=>{
     if(!req.user.isAdmin && (req.user.id != req.params.userId) ){
       return  res.status(401).json("You're not authorized to delete this user");
     }
     try {
-      console.log('reached');
-      
       await User.findByIdAndDelete(req.params.userId);
       res.status(200).json('Account deleted');     
     } catch (error) {
@@ -114,7 +108,6 @@ export const deleteUser = async(req,res)=>{
 }
 
 // Signing out 
-
 export const signOut = async (req,res)=>{
     try {
         res.clearCookie('access_token').status(200).json('User has been signed out');

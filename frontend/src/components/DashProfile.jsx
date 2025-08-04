@@ -15,7 +15,7 @@ function DashProfile() {
     const [updateStatus,setUpdateStatus] = useState(false);
     const [showModal,setShowModal] = useState(false);
     const navigate = useNavigate();
-    
+     
     // Function for uploading new profile picture
     const handleImageChange = async (e)=>{
         setImageUploadError(null);

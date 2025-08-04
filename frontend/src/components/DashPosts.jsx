@@ -105,12 +105,12 @@ function DashPosts() {
                 <TableCell>{post.category}</TableCell>
                 <TableCell><span className="text-red-500 font-semibold hover:underline cursor-pointer" onClick={()=>{setShowModal(true),setPostIdDelete(post._id)}}>Delete</span></TableCell>
                 <TableCell>
-                  <Link to={`/update-post/${post._id}`}>
-                    <span className="text-blue-500 font-semibold hover:underline cursor-pointer flex my-2">
-                      Edit
-                    </span>
-                  </Link>
-                </TableCell>
+                <Link to={`/update-post/${post._id}`}>
+                  <span className="text-blue-500 font-semibold hover:underline cursor-pointer flex my-2">
+                    Edit
+                  </span>
+                </Link>
+              </TableCell>
               </TableRow>
           ))}
             </TableBody>
