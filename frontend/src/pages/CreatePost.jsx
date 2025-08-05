@@ -1,4 +1,4 @@
-import { Button, FileInput, Select, Textarea, TextInput } from "flowbite-react"
+import { Button, FileInput, Select, Textarea, TextInput,Alert } from "flowbite-react"
 import { useState } from "react"
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -25,23 +25,37 @@ function CreatePost() {
     if(!file) return;
     if(file.size > 2*1024*1024){
       setImageUploadError('Image size must be less than 2mb');
+      return;
     }
     // Uploading image to backend
-    const formDataImg = new FormData();
-    formDataImg.append('image',file);
-    try {
-      const res = await fetch('/api/upload',{method:'POST',body:formDataImg});
-      const data = await res.json();
-      if (!res.ok){
-        setImageUploadError(data.message);
+    const reader = new FileReader();
+    
+    reader.onloadend = async ()=>{
+      const base64String = reader.result;
+      try {
+        const res = await fetch('/api/upload',{
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({image:base64String}),
+        });
+        const data = await res.json();
+        if (!res.ok){
+          setImageUploadError(data.message);
         return;
       }
       if(data.imageUrl){ 
         setFormData({...formData,image: data.imageUrl});
       }
       } catch (error) {
-        setImageUploadError('Upload failed:'+err);
+        setImageUploadError('Upload failed:'+error);
       }
+    }
+
+    if(file){
+      reader.readAsDataURL(file); // Convert image to base64
+    }
   }
 
   // Function for saving formdata to database
