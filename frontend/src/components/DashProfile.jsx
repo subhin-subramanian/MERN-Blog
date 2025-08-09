@@ -25,17 +25,26 @@ function DashProfile() {
             return setImageUploadError("Image size must be less than 2mb");
         }
         // Uploading image to backend
-        const formDataImg = new FormData();
-        formDataImg.append('image',file);
-        try {
-          const res = await fetch('/api/upload',{method:'POST',body:formDataImg});
+        const reader = new FileReader();
+
+        reader.onloadend = async()=>{
+          const base64String = reader.result;
+          try {
+          const res = await fetch('/api/upload',{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({image:base64String})});
           const data = await res.json();
           if(data.imageUrl){ 
             setFormData({...formData,profilePic: data.imageUrl});
           }
         } catch (error) {
-          setImageUploadError('Upload failed:'+err);
+          setImageUploadError('Upload failed:'+error);
         }
+      }
+      if(file){
+        reader.readAsDataURL(file)
+      }
     }
     
     // Function to store formdata

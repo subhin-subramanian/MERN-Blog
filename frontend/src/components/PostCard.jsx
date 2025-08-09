@@ -8,7 +8,7 @@ function PostCard({post}) {
         <img src={post.image} alt="image" className='rounded-t-md'/>
         <Button className="w-25 h-5 ml-3 bg-blue-300">{post.category}</Button>
         <h1 className="line-clamp-1 font-semibold ml-3">{post.title}</h1>
-        <p className="line-clamp-2 text-xs ml-3">{post.content}</p>
+        <p className="line-clamp-2 text-xs ml-3" dangerouslySetInnerHTML={{__html:post && post.content}}></p>
         <Link to={`/post/${post.slug}`} className='mb-3'>
             <span className="font-bold ml-3 flex items-center gap-2 hover:translate-x-1">Read More <HiArrowCircleRight className="text-2xl" /> </span>
         </Link>
