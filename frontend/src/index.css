@@ -4,3 +4,6 @@
 @source "../.flowbite-react/class-list.json";
 @custom-variant dark (&:is(.dark *));
 
+.ql-code-block-container {
+  @apply bg-gray-800 text-white p-4 my-4 rounded-md;
+}

@@ -12,7 +12,7 @@ function CreatePost() {
   const [publishError,setPublishError] = useState(null);
   const {currentUser} = useSelector(state=>state.user);
   const navigate = useNavigate();
-
+  
   // Function to store formdata
   const handleChange = (e)=>{
     setFormData({...formData,[e.target.id]:e.target.value});
@@ -88,8 +88,8 @@ function CreatePost() {
 
       <form className="flex flex-col gap-4" onSubmit={handleSubmit} >
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
-          <TextInput type="text" placeholder="Title" required id="title" className="flex-1" onChange={handleChange}/>
-          <Select id="category" onChange={handleChange}>
+          <TextInput type="text" placeholder="Title" required id="title" className="flex-2" onChange={handleChange}/>
+          <Select id="category" className="flex-1" onChange={handleChange}>
             <option value="Uncategorized">Select a Category</option>
             <option value="javascript">JavaScript</option>
             <option value="reactjs">React.js</option>
@@ -105,7 +105,7 @@ function CreatePost() {
         {imageUploadError && <Alert color='failure' >{imageUploadError}</Alert>}
         {formData.image && <img src={formData.image} alt='upload' className='w-full h-72 object-cover'/>}
 
-        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72" onChange={(e)=>setFormData({...formData,content:e})} />
+        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72 mb-10" onChange={(e)=>setFormData({...formData,content:e})} />
     
         <Button type="submit" className="bg-gradient-to-r from-blue-700 to-green-400">Publish</Button>
 

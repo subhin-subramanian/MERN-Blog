@@ -127,7 +127,7 @@ function UpdatePost() {
         {imageUploadError && <Alert color='failure' >{imageUploadError}</Alert>}
         {formData.image && <img src={formData.image} alt='upload' className='w-full h-72 object-cover'/>}
 
-        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72" onChange={(e)=>setFormData({...formData,content:e})} />
+        <ReactQuill theme="snow" value={formData.content || ' '} className="h-72 mb-10" onChange={(e)=>setFormData({...formData,content:e})} />
 
         <Button type="submit" className="bg-gradient-to-r from-blue-700 to-green-400" >Update</Button>
       </form>
