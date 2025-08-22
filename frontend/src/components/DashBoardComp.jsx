@@ -156,7 +156,7 @@ function DashBoardComp() {
         <div className="shadow-lg rounded-lg w-full md:w-auto">
           <div className="flex justify-between">
             <h2 className="font-semibold self-center p-2">Recent Comments</h2>
-            <Link to={'/dashboard?tab=posts'}>
+            <Link to={'/dashboard?tab=comments'}>
               <Button className='m-2'>See all</Button>
             </Link>     
           </div>
