@@ -36,10 +36,10 @@ app.use('/api/post',postRouter);
 app.use('/api/comment',commentRouter);
 
 // Frontend static rendering
-// app.use(express.static(path.join(__rendirname,'/frontend/dist')));
-// app.get('/*name',(req,res)=>{
-//     res.sendFile(path.join(__rendirname,'frontend','dist','index.html'));
-// });
+app.use(express.static(path.join(__rendirname,'/frontend/dist')));
+app.get('/*name',(req,res)=>{
+    res.sendFile(path.join(__rendirname,'frontend','dist','index.html'));
+});
 
 // Connecting to mongodb database
 mongoose.connect(process.env.MONGO)
