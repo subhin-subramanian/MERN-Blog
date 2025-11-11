@@ -5,9 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "nodemon backend/index.js",
-    "start": "node backend/index.js",
-    "build": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
+    "dev": "ts-node backend/src/server.ts",
+    "build:backend": "tsc --project backend/tsconfig.json",
+    "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start": "node backend/dist/server.js"
   },
   "keywords": [],
   "author": "",
@@ -23,5 +25,14 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.5",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^24.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

@@ -1,5 +1,5 @@
 import bcryptjs from 'bcryptjs'
-import User from '../models/user.model.js';
+import User from '../../models/user.model.js';
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library';
 import cloudinary from '../utils/cloudinary.js';
