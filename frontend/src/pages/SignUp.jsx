@@ -1,6 +1,7 @@
 import { Button, Label, TextInput,Alert, Spinner } from 'flowbite-react'
 import { useState } from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import {Link, useNavigate} from 'react-router-dom';
+import {GoogleLogin } from '@react-oauth/google';
 
 const SignUp = () => {
 
@@ -15,6 +16,7 @@ const SignUp = () => {
 
   const handleSubmit = async(e)=>{
     e.preventDefault();
+    setErrorMsg(null)
     if(!formData.username || !formData.email || !formData.password){
       return setErrorMsg("All fields are required")
     }
@@ -37,6 +39,34 @@ const SignUp = () => {
         navigate('/sign-in')
       }
 
+    } catch (error) {
+      setErrorMsg(error.message)
+      setLoading(false)
+    }
+  }
+
+  const handleGoogleSignUp = async(credentialResponse)=>{
+    setErrorMsg(null)
+    if(!formData.password || formData.password==='') {
+     return setErrorMsg("Even if you're using google account to signup, password is required. Please enter a password");
+    } 
+    let password = formData.password;
+    try {
+      setLoading(true)
+      setErrorMsg(false)
+      const response = await fetch('/api/user/sign-up/google',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token : credentialResponse.credential,password})
+      });
+      const data = await response.json();
+      if (!response.ok){
+        console.log(data.message)
+        setLoading(false)
+        return setErrorMsg(data.message)
+      }
+      setLoading(false)
+      navigate('/sign-in')
     } catch (error) {
       setErrorMsg(error.message)
       setLoading(false)
@@ -82,7 +112,13 @@ const SignUp = () => {
                <Spinner size='sm'/>
                 <span className='pl-'>Loading...</span>
               </>
-            ) :('Sign Up')}</Button>     
+            ) :('Sign Up')}</Button>    
+            
+            <GoogleLogin onSuccess={handleGoogleSignUp} onError={(error) => {
+              console.log("Google Login Failed")
+              setErrorMsg("Google Error",error)}} /> 
+           
+
         </form>
 
         <div className="text-sm flex gap-3 mt-3 font-semibold">

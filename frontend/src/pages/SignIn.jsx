@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {Link, useNavigate} from 'react-router-dom'
 import { signInFailure, signInStart, signInSuccess } from '../redux/userSlice';
+import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 
 function SignIn() {
   
@@ -26,6 +27,31 @@ function SignIn() {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(formData)
+      });
+      const data = await response.json(); 
+      if(response.ok){
+        dispatch(signInSuccess(data.rest));
+        navigate('/')
+      } 
+      if(!response.ok){
+        dispatch(signInFailure(data));       
+        return;
+      }
+    } catch (error) {
+      dispatch(signInFailure(error.message));   
+    }
+  }
+
+  const handleGoogleSignIn = async (credentialResponse)=>{
+    if(!formData.password){
+      return dispatch(signInFailure('Password is required'));
+    }
+    try {
+      dispatch(signInStart());
+      const response = await fetch('/api/user/sign-in/google',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({token:credentialResponse.credential,password:formData.password})
       });
       const data = await response.json(); 
       if(response.ok){
@@ -76,6 +102,10 @@ function SignIn() {
                 <span>Loading...</span>
               </>
             ) :('Sign In')}</Button>
+            
+            <GoogleLogin onSuccess={handleGoogleSignIn} onError={() => {
+              console.log("Google Login Failed")
+              dispatch(signInFailure('Google Sign-in Failed'));}} /> 
                     
           </form>
   
@@ -83,7 +113,13 @@ function SignIn() {
             <p>Don't have an account?</p>
             <Link to='/sign-up' className='text-blue-600'>Sign Up</Link>
           </div>
-          {errorMsg && (<Alert className='mt-5' color='failure'>{errorMsg}</Alert>)}
+          {errorMsg && (
+          <Alert className="mt-5" color="failure">
+            {typeof errorMsg === 'string'
+              ? errorMsg
+              : errorMsg.message || 'An error occurred'}
+          </Alert>
+        )}
         </div>
 
       </div>

@@ -1,10 +1,13 @@
 import bcryptjs from 'bcryptjs'
 import User from '../models/user.model.js';
 import jwt from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library';
+import cloudinary from '../utils/cloudinary.js';
 
-export const test = (req,res)=>{
-    res.json('test-api is working');
-}
+import dotenv from "dotenv";
+dotenv.config(); 
+
+const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 
 // Function for sign-up route
 
@@ -35,6 +38,61 @@ export const signUp = async(req,res)=>{
     }
 }
 
+// Function for signingUp using google Account
+export const googleSignUp = async (req,res)=>{
+    const { token,password } = req.body;
+    if(!password || password === ''){
+        return res.status(400).json({ success: false, message: "Even if you're using google account to signup, password is required. Please enter a password" });
+    }
+    const hashedPassword = bcryptjs.hashSync(password,10);
+
+    let username,email,profilePic;
+
+    try {
+         //Verify google token
+        const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+        });
+
+        const payload = ticket.getPayload();
+        username = payload.name;
+        email = payload.email;
+        profilePic = payload.picture ? `${payload.picture}?sz=200` : "";
+                
+    } catch (err) {
+    console.error("Google token verification failed:", err);
+    return res.status(401).json({ success: false, message: "Invalid Google token" });
+    }
+
+    if(!email) return res.status(400).json({ message: "Invalid Google account" });
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser){
+        return res.status(401).json({
+            success: false,
+            message: "User already exists, try with different email"
+        });
+    }
+
+    // If not, create new user
+    try {
+        //Save image to cloudinary
+        let uploadedImageUrl = "";
+        if(profilePic){
+            const uploadResponse = await cloudinary.uploader.upload(profilePic,{ folder:"Blog_google_profiles"});
+            uploadedImageUrl = uploadResponse.secure_url;
+        }
+        const newUser = new User({username, email, profilePic:uploadedImageUrl || profilePic, password:hashedPassword})
+        await newUser.save();
+        res.status(200).json('Signup successfull') 
+    } catch (error) {
+        console.error("Error during Google signup:", error);
+        res.status(500).json({success:false,message: error.errmsg || 'server error'});
+    }
+}
+
 // Function for sign-in route   
 export const signIn = async (req,res)=>{
     const {username,password} = req.body;
@@ -59,6 +117,52 @@ export const signIn = async (req,res)=>{
         const token = jwt.sign({id:validUser._id,isAdmin:validUser.isAdmin},process.env.JWT_SECRET);
         const {password:pass,...rest} = validUser._doc;
         res.status(200).cookie('access_token',token,{httpOnly:true}).json({rest});
+
+    } catch (error) {
+        res.status(500).json({success:false,message: error.errmsg || 'server error'});
+    }
+}
+
+// Function for signingIn using google Account
+export const googleSignIn = async (req,res)=>{
+    const { token,password } = req.body;
+    if(!password || password === ''){
+        return res.status(400).json({ success: false, message: "Even if you're using google account to signup, password is required. Please enter a password" });
+    }
+
+    let username;
+
+    try {
+         //Verify google token
+        const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+        username = payload.name;
+                
+    } catch (err) {
+    console.error("Google token verification failed:", err);
+    return res.status(401).json({ success: false, message: "Invalid Google token" });
+    }
+
+    try {
+        // Checking with email, if user exists proceeds further otherwise returns
+        const validUser = await User.findOne({username});
+        if (!validUser){
+            return res.status(403).json('Wrong credentials');
+        }
+
+        // Password checking
+        const validPassword = bcryptjs.compareSync(password,validUser.password);
+        if(!validPassword){
+            return res.status(403).json('Wrong credentials');
+        }
+
+        // token creation
+        const accessToken = jwt.sign({id:validUser._id,isAdmin:validUser.isAdmin},process.env.JWT_SECRET);
+        const {password:pass,...rest} = validUser._doc;
+        res.status(200).cookie('access_token',accessToken,{httpOnly:true}).json({rest});
 
     } catch (error) {
         res.status(500).json({success:false,message: error.errmsg || 'server error'});

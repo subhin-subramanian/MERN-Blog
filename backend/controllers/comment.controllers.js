@@ -1,6 +1,5 @@
 import Comment from "../models/comment.model.js";
 
-
 // Function for creating a new comment
 export const createComment = async(req,res)=>{
     const {content,postId,userId} = req.body;
