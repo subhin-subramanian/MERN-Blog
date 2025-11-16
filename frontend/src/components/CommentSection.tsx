@@ -3,18 +3,24 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux"
 import { Link } from "react-router-dom";
 import AllComments from "./AllComments";
+import { RootState } from "../redux/store";
+import { CommentInt } from "../types/comment";
 
-function CommentSection({postId}) {
-  const {currentUser} = useSelector(state=>state.user);
-  const [comment,setComment] = useState(null);
-  const [commentError,setCommentError] = useState(null);
-  const [allComments,setAllComments] = useState([]);
-  const [allCommentsError,setAllCommentsError] = useState(null);
+interface PostIdProp {
+  postId: string;
+}
+
+function CommentSection({postId} : PostIdProp) {
+  const {currentUser} = useSelector((state : RootState) =>state.user);
+  const [comment,setComment] = useState <string | null> (null);
+  const [commentError,setCommentError] = useState <string | null> (null);
+  const [allComments,setAllComments] = useState <CommentInt[]> ([]);
+  const [allCommentsError,setAllCommentsError] = useState <string | null> (null);
   
 //Function to submit comment to database via backend
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
-    if(comment.length > 200){
+    if((comment?.length || 0) > 200){
         setCommentError('Comment must not have more than 200 letters');
     }
     if(!comment){
@@ -24,7 +30,7 @@ function CommentSection({postId}) {
         const res = await fetch(`/api/comment/create`,{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({content:comment,postId,userId:currentUser._id})
+            body:JSON.stringify({content:comment,postId,userId:currentUser?._id})
         });
         const data = await res.json();
         if(!res.ok){
@@ -33,8 +39,8 @@ function CommentSection({postId}) {
         }
         setCommentError(null);
         setComment('');
-        setAllComments([data,...allComments]);
-    } catch (error) {
+        setAllComments([data.datafromBknd,...allComments]);
+    } catch (error:any) {
         setCommentError(error.message);
     }
   }
@@ -51,8 +57,8 @@ useEffect(()=>{
             return;
         }
         setAllCommentsError(null);
-        setAllComments(data)
-      } catch (error) {
+        setAllComments(data.datafromBknd)
+      } catch (error:any) {
             setAllCommentsError(error.message);
       }
     }
@@ -60,7 +66,7 @@ useEffect(()=>{
 },[postId]);
   
 //Function to handle like
-  const handleLike = async(likedComment)=>{
+  const handleLike = async(likedComment : CommentInt)=>{
     setAllComments(allComments.map((mapcomment)=>
       mapcomment._id === likedComment._id ? {
       ...mapcomment,
@@ -71,15 +77,15 @@ useEffect(()=>{
   }
  
 //Function to handle edit
-  const handleEdit = (editedComment)=>{
+  const handleEdit = (editedComment : CommentInt)=>{
     setAllComments(allComments.map((mapcomment)=>
       mapcomment._id === editedComment._id ? {...mapcomment,content:editedComment.content} : mapcomment));
     setCommentError('');
   }
   
   //Function to handle delete
-  const handleDelete = (deletedComment)=>{
-    setAllComments(allComments.filter(filtercomm=>filtercomm._id !== deletedComment));
+  const handleDelete = (deletedCommentId : string)=>{
+    setAllComments(allComments.filter(filtercomm=>filtercomm._id !== deletedCommentId));
   }
 
   return (
@@ -92,7 +98,7 @@ useEffect(()=>{
             <Link to={'/dashboard?tab=profile'}>@{currentUser.username}</Link>
         </div>
         <form className="border-2 border-blue-400 rounded-lg p-3 mt-2" onSubmit={handleSubmit}>
-            <Textarea placeholder="Add a comment"  rows='3' maxLength='200' onChange={(e)=>setComment(e.target.value)}/>
+            <Textarea placeholder="Add a comment"  rows={3} maxLength={200} onChange={(e)=>setComment(e.target.value)}/>
             <p className="text-sm mb-3">Characters remaining</p>
             <Button type="submit" color='default'>Submit</Button>
         </form>

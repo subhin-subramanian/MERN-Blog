@@ -1,23 +1,32 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { User } from "../types/user";
 
-const userSlice = createSlice({
-    name:'user',
-    initialState:{
+interface UserState {
+    currentUser: User | null;
+    loading: boolean;
+    error: string | { message: string } | null;
+}
+
+const initialState: UserState = {
         currentUser:null,
         loading:false,
         error:null
-    },
+}
+
+const userSlice = createSlice({
+    name:'user',
+    initialState,
     reducers:{
         signInStart:(state)=>{
             state.error = null;
             state.loading = true;
         },
-        signInSuccess:(state,action)=>{
+        signInSuccess:(state,action : PayloadAction<User>)=>{
             state.currentUser = action.payload;
             state.error = null;
             state.loading = false;
         },
-        signInFailure:(state,action)=>{
+        signInFailure:(state,action : PayloadAction<string>)=>{
             state.error = action.payload;
             state.loading = false;
         },
@@ -25,29 +34,29 @@ const userSlice = createSlice({
             state.error = null;
             state.loading = true;
         },
-        updateSuccess:(state,action)=>{
+        updateSuccess:(state,action : PayloadAction<User>)=>{
             state.currentUser = action.payload;
             state.error = null;
             state.loading = false;
         },
-        updateFailure:(state,action)=>{
+        updateFailure:(state,action : PayloadAction<string>)=>{
             state.error = action.payload;
             state.loading = false;
         },
-        deleteUserStart:(state)=>{
+        deleteUserStart:(state )=>{
             state.error = null;
             state.loading = true;
         },
-        deleteUserSuccess:(state,action)=>{
+        deleteUserSuccess:(state,action : PayloadAction<User>)=>{
             state.currentUser = action.payload;
             state.error = null;
             state.loading = false;
         },
-        deleteUserFailure:(state,action)=>{
+        deleteUserFailure:(state,action : PayloadAction<string>)=>{
             state.error = action.payload;
             state.loading = false;
         }, 
-        signOutFailure:(state,action)=>{
+        signOutFailure:(state,action : PayloadAction<string>)=>{
             state.error = action.payload;
             state.loading = false;
         },    

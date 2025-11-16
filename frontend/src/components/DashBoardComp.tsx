@@ -3,20 +3,24 @@ import { useEffect, useState } from "react";
 import { HiAnnotation, HiArrowUp, HiDocumentText, HiOutlineUserGroup } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { User } from "../types/user";
+import { CommentInt } from "../types/comment";
+import { Post } from "../types/post";
+import { RootState } from "../redux/store";
 
 function DashBoardComp() {
   
-  const [users,setUsers] = useState([]);
-  const [totalUsers,setTotalUsers] = useState(0);
-  const [lastMonthUsers,setLastMonthUsers] = useState(0);
-  const [comments,setComments] = useState([]);
-  const [totalComments,setTotalComments] = useState(0);
-  const [lastMonthComments,setLastMonthComments] = useState(0);
-  const [posts,setPosts] = useState([]);
-  const [totalPosts,setTotalPosts] = useState(0);
-  const [lastMonthPosts,setLastMonthPosts] = useState(0);
-  const {currentUser} = useSelector(state=>state.user);
-  const [error,setError] = useState(null);
+  const [users,setUsers] = useState <User[]>([]);
+  const [totalUsers,setTotalUsers] = useState <number>(0);
+  const [lastMonthUsers,setLastMonthUsers] = useState <number>(0);
+  const [comments,setComments] = useState <CommentInt[]> ([]);
+  const [totalComments,setTotalComments] = useState <number>(0);
+  const [lastMonthComments,setLastMonthComments] = useState <number>(0);
+  const [posts,setPosts] = useState <Post[]> ([]);
+  const [totalPosts,setTotalPosts] = useState <number>(0);
+  const [lastMonthPosts,setLastMonthPosts] = useState <number>(0);
+  const {currentUser} = useSelector((state : RootState) =>state.user);
+  const [error,setError] = useState <string | null> (null);
   
   // Useeffect with functions inside for fetching user,post and comment details to render 
   useEffect(()=>{
@@ -29,10 +33,10 @@ function DashBoardComp() {
           setError(data.message);
           return;
         }
-        setUsers(data.users);
-        setTotalUsers(data.totalUsers);
-        setLastMonthUsers(data.lastMonthUsers);
-        } catch (error) {
+        setUsers(data.datafromBknd.users);
+        setTotalUsers(data.datafromBknd.totalUsers);
+        setLastMonthUsers(data.datafromBknd.lastMonthUsers);
+        } catch (error:any) {
           setError(error.message);
         }
     }
@@ -45,10 +49,10 @@ function DashBoardComp() {
           setError(data.message);
           return;
         }
-        setPosts(data.posts);
-        setTotalPosts(data.totalPosts);
-        setLastMonthPosts(data.lastMonthPosts); 
-      } catch (error) {
+        setPosts(data.datafromBknd.posts);
+        setTotalPosts(data.datafromBknd.totalPosts);
+        setLastMonthPosts(data.datafromBknd.lastMonthPosts); 
+      } catch (error:any) {
         setError(error.message);
       }
     }
@@ -61,11 +65,11 @@ function DashBoardComp() {
           setError(data.message);
           return;
         }
-        setComments(data.comments);
-        setTotalComments(data.totalComments);
-        setLastMonthComments(data.lastMonthComments);
+        setComments(data.datafromBknd.comments);
+        setTotalComments(data.datafromBknd.totalComments);
+        setLastMonthComments(data.datafromBknd.lastMonthComments);
         setError(null);
-      } catch (error) {
+      } catch (error:any) {
         setError(error.message);
       }     
     }

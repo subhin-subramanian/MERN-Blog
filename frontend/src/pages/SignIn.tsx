@@ -1,22 +1,28 @@
 import { Button, Label, TextInput,Alert, Spinner } from 'flowbite-react'
-import { useState } from 'react'
+import { FormEvent, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import {Link, useNavigate} from 'react-router-dom'
 import { signInFailure, signInStart, signInSuccess } from '../redux/userSlice';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { RootState } from "../redux/store";
+
+interface UserData{
+  username?: string;
+  password?: string;
+}
 
 function SignIn() {
   
-  const [formData,setFormData] = useState({});
+  const [formData,setFormData] = useState <UserData> ({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const {loading,error:errorMsg} = useSelector(state=>state.user);
+  const {loading,error:errorMsg} = useSelector((state: RootState) =>state.user);
 
-  const handleChange = (e)=>{
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>)=>{
     setFormData({...formData,[e.target.id]:e.target.value.trim()})
   }
   
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async(e: FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     if(!formData.username || !formData.password){
       return dispatch(signInFailure('All fields are required'));
@@ -25,24 +31,23 @@ function SignIn() {
       dispatch(signInStart());
       const response = await fetch('/api/user/sign-in',{
         method:'POST',
+        credentials:'include',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(formData)
       });
       const data = await response.json(); 
-      if(response.ok){
-        dispatch(signInSuccess(data.rest));
-        navigate('/')
-      } 
       if(!response.ok){
-        dispatch(signInFailure(data));       
+        dispatch(signInFailure(data.message));       
         return;
       }
-    } catch (error) {
+      dispatch(signInSuccess(data.datafromBknd));
+      navigate('/')
+    } catch (error:any) {
       dispatch(signInFailure(error.message));   
     }
   }
 
-  const handleGoogleSignIn = async (credentialResponse)=>{
+  const handleGoogleSignIn = async (credentialResponse: CredentialResponse)=>{
     if(!formData.password){
       return dispatch(signInFailure('Password is required'));
     }
@@ -54,15 +59,13 @@ function SignIn() {
         body:JSON.stringify({token:credentialResponse.credential,password:formData.password})
       });
       const data = await response.json(); 
-      if(response.ok){
-        dispatch(signInSuccess(data.rest));
-        navigate('/')
-      } 
       if(!response.ok){
-        dispatch(signInFailure(data));       
+        dispatch(signInFailure(data.message));       
         return;
       }
-    } catch (error) {
+      dispatch(signInSuccess(data.datafromBknd));
+      navigate('/')
+    } catch (error:any) {
       dispatch(signInFailure(error.message));   
     }
   }
@@ -85,13 +88,13 @@ function SignIn() {
           <form className='flex flex-col gap-3' onSubmit={handleSubmit}>
   
             <div>
-              <Label value='username'/>
+              <Label htmlFor='username'/>
               <TextInput type='text' 
               placeholder='username' id='username' onChange={handleChange}/>
             </div>      
   
             <div>
-              <Label value='Password'/>
+              <Label htmlFor='Password'/>
               <TextInput type='password' placeholder='password' id='password' onChange={handleChange}/>
             </div>
       

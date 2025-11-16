@@ -2,14 +2,16 @@ import { Button, Modal, ModalBody, ModalHeader, Alert, TableBody, TableRow, Tabl
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { RootState } from "../redux/store";
+import { CommentInt } from "../types/comment";
 
 function DashComments() {
-  const {currentUser} = useSelector(state=>state.user);
-  const [comments,setComments] = useState([]);
-  const [commentsError,setCommentsError] = useState(null);
-  const [showMore,setShowMore] = useState(false);
-  const [showModal,setShowModal] = useState(false);
-  const [commentIdDelete,setCommentIdDelete] = useState(null);
+  const {currentUser} = useSelector((state : RootState) =>state.user);
+  const [comments,setComments] = useState <CommentInt[]> ([]);
+  const [commentsError,setCommentsError] = useState <string | null> (null);
+  const [showMore,setShowMore] = useState <boolean> (false);
+  const [showModal,setShowModal] = useState <boolean> (false);
+  const [commentIdDelete,setCommentIdDelete] = useState <string | null> (null);
 
   useEffect(()=>{
     const fetchAllComments = async()=>{
@@ -19,16 +21,16 @@ function DashComments() {
         if(!res.ok){
           setCommentsError(data.message);
         }
-        setComments(data.comments);
+        setComments(data.datafromBknd.comments);
         setCommentsError(null);   
-      } catch (error) {
+      } catch (error:any) {
         setCommentsError(error.message);   
       }
     }
     if(currentUser && currentUser.isAdmin){
       fetchAllComments();
     }
-  },[currentUser._id]);
+  },[currentUser?._id]);
 
   // Function to delete a comment
   const handleDelete = async()=>{
@@ -40,15 +42,15 @@ function DashComments() {
         setCommentsError(data.message);
         return;
       }
-      setComments(comments.filter(comment=>comment._id !== commentIdDelete));
-    } catch (error) {
+      setComments(comments.filter(comment => comment._id !== commentIdDelete));
+    } catch (error:any) {
       setCommentsError(error.message);
     }
   }
   
   return (
     <div className="table-auto overflow-x-auto md:mx-auto p-3">
-      {currentUser.isAdmin && comments.length >0 ?(
+      {currentUser?.isAdmin && comments.length >0 ?(
         <>
           <Table hoverable className="shadow-md min-w-[800px]">
             <TableHead>
@@ -64,7 +66,7 @@ function DashComments() {
             {comments.map(comment=>(
             <TableBody key={comment._id} className="divide-y dark:bg-blue-900">
               <TableRow>
-                <TableCell>{new Date(comment.updatedAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(comment.updatedAt as string).toLocaleDateString()}</TableCell>
                 <TableCell>{comment.content}</TableCell>
                 <TableCell>{comment.numberOfLikes}</TableCell>
                 <TableCell>{comment.postId}</TableCell>

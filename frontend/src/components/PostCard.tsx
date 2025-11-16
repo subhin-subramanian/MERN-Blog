@@ -1,8 +1,13 @@
 import { Button } from 'flowbite-react'
 import { HiArrowCircleRight } from 'react-icons/hi'
 import { Link } from 'react-router-dom'
+import { Post } from '../types/post';
 
-function PostCard({post}) {
+interface PostCardProps {
+  post: Post;
+}
+
+function PostCard({ post }: PostCardProps) {
   return (
     <div className="border border-blue-300 max-w-72 max-h-96 flex flex-col gap-3 rounded-md hover:translate-y-2 hover:border-2 transition-all duration-300">
         <img src={post.image} alt="image" className='rounded-t-md'/>

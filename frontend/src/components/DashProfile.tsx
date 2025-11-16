@@ -1,25 +1,33 @@
 import { Alert, Button, Modal, ModalBody, ModalHeader, TextInput } from 'flowbite-react'
-import { useRef, useState } from 'react'
+import { FormEvent, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteUserFailure, deleteUserStart, deleteUserSuccess, signOutFailure, signOutSuccess, updateFailure, updateStart,  updateSuccess } from '../redux/userSlice';
 import { Link, useNavigate } from 'react-router-dom';
 import { HiOutlineExclamationCircle } from 'react-icons/hi';
+import { RootState } from '../redux/store';
+import { User } from '../types/user';
 
 function DashProfile() {
 
-    const {currentUser,error,loading} = useSelector(state=>state.user);
-    const [imageUploadError,setImageUploadError] = useState(null);
-    const filePickRef = useRef();
-    const [formData,setFormData] = useState({username:currentUser.username,email:currentUser.email,profilePic:currentUser.profilePic});
+    const {currentUser,error,loading} = useSelector((state : RootState) =>state.user);
+    const filePickRef = useRef <HTMLInputElement | null> (null);
+
+    const [formData,setFormData] = useState <Partial<User>> ({
+      username:currentUser?.username,
+      email:currentUser?.email,
+      profilePic:currentUser?.profilePic
+    });
+
     const dispatch = useDispatch();
-    const [updateStatus,setUpdateStatus] = useState(false);
-    const [showModal,setShowModal] = useState(false);
+    const [imageUploadError,setImageUploadError] = useState <string | null> (null);
+    const [updateStatus,setUpdateStatus] = useState <boolean> (false);
+    const [showModal,setShowModal] = useState <boolean> (false);
     const navigate = useNavigate();
      
     // Function for uploading new profile picture
-    const handleImageChange = async (e)=>{
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>)=>{
         setImageUploadError(null);
-        const file = e.target.files[0];
+        const file = e.target.files?.[0];
         if(!file) return;
         if (file.size > (2*1024*1024)){
             return setImageUploadError("Image size must be less than 2mb");
@@ -36,10 +44,10 @@ function DashProfile() {
             body:JSON.stringify({image:base64String})});
           const data = await res.json();
           if(data.imageUrl){ 
-            setFormData({...formData,profilePic: data.imageUrl});
+            setFormData({...formData,profilePic: data.datafromBknd.imageUrl});
           }
-        } catch (error) {
-          setImageUploadError('Upload failed:'+error);
+        } catch (error:any) {
+          setImageUploadError(`Upload failed due to ${error}`);
         }
       }
       if(file){
@@ -48,12 +56,12 @@ function DashProfile() {
     }
     
     // Function to store formdata
-    const handleChange = (e)=>{
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({...formData,[e.target.id]:e.target.value});
     }
 
     // Function to call the api for updating profile
-    const handleSubmit = async (e)=>{
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         setUpdateStatus(false);
         if(formData.username === '' || formData.email==='' || formData.password===''){
@@ -63,7 +71,7 @@ function DashProfile() {
         // updating and saving to database
         try {
             dispatch(updateStart());
-            const response = await fetch(`/api/user/update/${currentUser._id}`,{
+            const response = await fetch(`/api/user/update/${currentUser?._id}`,{
                 method:'PUT',
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify(formData)
@@ -72,10 +80,10 @@ function DashProfile() {
             if (!response.ok){
                dispatch(updateFailure(data.message));
             }else{
-                dispatch(updateSuccess(data));
+                dispatch(updateSuccess(data.datafromBknd));
                 setUpdateStatus(true);
             }
-        } catch (error) {
+        } catch (error:any) {
             dispatch(updateFailure(error.message));         
         }
     }
@@ -86,15 +94,15 @@ function DashProfile() {
       setShowModal(false);
       try {
         dispatch(deleteUserStart());
-        const response = await fetch(`/api/user/delete/${currentUser._id}`,{method:'DELETE'});
+        const response = await fetch(`/api/user/delete/${currentUser?._id}`,{method:'DELETE'});
         const data = await response.json();
         if(!response.ok){
           dispatch(deleteUserFailure(data.message));
         }else{
-          dispatch(deleteUserSuccess(data));
+          dispatch(deleteUserSuccess(data.message));
           navigate('/sign-up');
         }
-      } catch (error) {
+      } catch (error:any) {
         dispatch(deleteUserFailure(error.message));
       }
     }
@@ -108,10 +116,10 @@ function DashProfile() {
         if(!response.ok){
           console.log(data.message);
         }else{
-          dispatch(signOutSuccess(data));
+          dispatch(signOutSuccess(data.message));
           navigate('/sign-up');
         }
-      } catch (error) {
+      } catch (error:any) {
         dispatch(signOutFailure(error.message));
       }
     }
@@ -123,21 +131,21 @@ function DashProfile() {
 
       <form className="flex flex-col items-center gap-5" onSubmit={handleSubmit}>
         <input type="file" accept='image/*' onChange={handleImageChange} ref={filePickRef} hidden/>
-        <div className="w-32 h-32 rounded-full mt-5 self-center cursor-pointer shadow-md" onClick={()=>filePickRef.current.click()} >
-          <img src={formData.profilePic || currentUser.profilePic} alt="User" className="w-full h-full rounded-full border-3 " id="profilePic"/>
+        <div className="w-32 h-32 rounded-full mt-5 self-center cursor-pointer shadow-md" onClick={()=>filePickRef.current?.click()} >
+          <img src={formData.profilePic || currentUser?.profilePic} alt="User" className="w-full h-full rounded-full border-3 " id="profilePic"/>
         </div>
 
         { imageUploadError && <Alert color='failure'>{imageUploadError}</Alert>}
 
-        <TextInput className="w-80" type='text' defaultValue={currentUser.username} placeholder='username' id='username' onChange={handleChange}/>
+        <TextInput className="w-80" type='text' defaultValue={currentUser?.username} placeholder='username' id='username' onChange={handleChange}/>
 
-        <TextInput className="w-80"  type='email' defaultValue={currentUser.email} placeholder='email' id='email' onChange={handleChange}/>
+        <TextInput className="w-80"  type='email' defaultValue={currentUser?.email} placeholder='email' id='email' onChange={handleChange}/>
 
         <TextInput className="w-80"  type='password' placeholder='password' id='password' onChange={handleChange}/>
 
         <Button className="w-80 hover:bg-gradient-to-r from-blue-700 to-green-400" outline  type='submit' disabled={loading}>{loading ? 'Loading...' : 'Update'}</Button>
 
-        {currentUser.isAdmin &&
+        {currentUser?.isAdmin &&
         <Link to={'/create-post'}>
           <Button className="w-80 bg-gradient-to-r from-green-400 to-blue-700">Create a Post</Button>
         </Link>}
@@ -150,7 +158,7 @@ function DashProfile() {
 
       {updateStatus&& <Alert color="success" className="flex justify-self-center items-center w-96 mt-4">Profile Updated successfully</Alert>}
 
-      {error && <Alert color="failure">{error}</Alert>}
+      {error && <Alert color="failure">{typeof error === "string" ? error : error.message}</Alert>}
 
       <Modal show={showModal} onClose={()=>setShowModal(false)} popup size='md'>
         <ModalHeader className="bg-blue-300">

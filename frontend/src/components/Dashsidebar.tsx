@@ -4,12 +4,13 @@ import { HiAnnotation,HiArrowSmRight,HiChartPie,HiDocumentText,HiOutlineUserGrou
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signOutFailure, signOutSuccess } from '../redux/userSlice';
+import { RootState } from '../redux/store';
 
 function Dashsidebar() {
 
     const location = useLocation();
-    const [tab,setTab] = useState();
-    const {currentUser} = useSelector(state=>state.user);
+    const [tab,setTab] = useState <string> ('');
+    const {currentUser} = useSelector((state : RootState)=>state.user);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -30,10 +31,10 @@ function Dashsidebar() {
         if(!response.ok){
           console.log(data.message);
         }else{
-          dispatch(signOutSuccess(data));
+          dispatch(signOutSuccess(data.message));
           navigate('/sign-up');
         }
-      } catch (error) {
+      } catch (error:any) {
         dispatch(signOutFailure(error.message));
         console.log(error.message);
       }
@@ -43,15 +44,15 @@ function Dashsidebar() {
     <Sidebar className='w-full'>
       <SidebarItems>
         <SidebarItemGroup>
-          {currentUser.isAdmin &&
+          {currentUser?.isAdmin &&
           <Link to={'/dashboard?tab=dash'}>
             <SidebarItem active={tab === 'dash' || !tab} icon={HiChartPie} as="div">DashBoard</SidebarItem>  
           </Link>}
           
           <Link to={'/dashboard?tab=profile'}>
-            <SidebarItem active={tab === 'profile'} icon={HiUser} label={currentUser.isAdmin ? 'Admin' : 'User'} as="div">Profile</SidebarItem>  
+            <SidebarItem active={tab === 'profile'} icon={HiUser} label={currentUser?.isAdmin ? 'Admin' : 'User'} as="div">Profile</SidebarItem>  
           </Link>
-          {currentUser.isAdmin &&
+          {currentUser?.isAdmin &&
           <>
           <Link to={'/dashboard?tab=posts'}>
             <SidebarItem active={tab === 'posts'} icon={HiDocumentText}  as="div">Posts</SidebarItem>  

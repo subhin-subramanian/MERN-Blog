@@ -4,24 +4,31 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { RootState } from "../redux/store";
+import { Post } from "../types/post";
 
 function CreatePost() {
 
-  const [formData,setFormData] = useState({});
-  const [imageUploadError,setImageUploadError] = useState(null);
-  const [publishError,setPublishError] = useState(null);
-  const {currentUser} = useSelector(state=>state.user);
+  const [formData,setFormData] = useState <Post> ({
+    title: '',
+    category: 'Uncategorized',
+    image: '',
+    content: '',
+  });
+  const [imageUploadError,setImageUploadError] = useState <string | null> (null);
+  const [publishError,setPublishError] = useState <string | null> (null);
+  const {currentUser} = useSelector((state: RootState)=>state.user);
   const navigate = useNavigate();
   
   // Function to store formdata
-  const handleChange = (e)=>{
-    setFormData({...formData,[e.target.id]:e.target.value});
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLAreaElement>)=>{
+    setFormData({...formData,[e.target.id]:(e.target as any).value});
   }
 
   // Function for uploading cover image
-  const handleImageChange = async(e)=>{
+  const handleImageChange = async(e: React.ChangeEvent<HTMLInputElement>)=>{
     setImageUploadError(null);
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if(!file) return;
     if(file.size > 2*1024*1024){
       setImageUploadError('Image size must be less than 2mb');
@@ -31,7 +38,7 @@ function CreatePost() {
     const reader = new FileReader();
     
     reader.onloadend = async ()=>{
-      const base64String = reader.result;
+      const base64String = reader.result as string;
       try {
         const res = await fetch('/api/upload',{
           method:'POST',
@@ -46,9 +53,9 @@ function CreatePost() {
         return;
       }
       if(data.imageUrl){ 
-        setFormData({...formData,image: data.imageUrl});
+        setFormData({...formData,image: data.datafromBknd.imageUrl});
       }
-      } catch (error) {
+      } catch (error:any) {
         setImageUploadError('Upload failed:'+error);
       }
     }
@@ -59,7 +66,7 @@ function CreatePost() {
   }
 
   // Function for saving formdata to database
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     setPublishError(null);
     console.log(formData);
@@ -75,8 +82,8 @@ function CreatePost() {
         setPublishError(data.message);
         return;
       }
-      navigate(`/post/${data.slug}`)
-    } catch (error) {
+      navigate(`/post/${data.datafromBknd.slug}`)
+    } catch (error:any) {
       setPublishError(error.message);
     }
   }
@@ -98,7 +105,7 @@ function CreatePost() {
         </div>
 
         <div className="flex gap-4 items-center justify-between border-4 border-blue-500 border-dotted p-3">
-          <FileInput type='file' accept="image/*" onChange={handleImageChange}/>
+          <FileInput accept="image/*" onChange={handleImageChange}/>
           <Button type="button" outline >Upload Image</Button>
         </div>
 

@@ -3,14 +3,16 @@ import { useEffect, useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { FaCheck, FaTimes } from "react-icons/fa";
+import { RootState } from "../redux/store";
+import { User } from "../types/user";
 
 function DashUsers() {
-  const [users,setUsers] = useState([]);
-  const {currentUser} = useSelector(state=>state.user);
-  const [usersError,setUsersError] = useState(null);
-  const [showMore,setShowMore] = useState(false);
-  const [showModal,setShowModal] = useState(false);
-  const [userIdDelete,setUserIdDelete] = useState(null);
+  const [users,setUsers] = useState <User[]> ([]);
+  const {currentUser} = useSelector((state : RootState)=>state.user);
+  const [usersError,setUsersError] = useState <string | null> (null);
+  const [showMore,setShowMore] = useState <boolean> (false);
+  const [showModal,setShowModal] = useState <boolean> (false);
+  const [userIdDelete,setUserIdDelete] = useState <string |null> (null);
 
   // FetchUsers function with useEffect the posts while opening the page
   useEffect(()=>{
@@ -22,9 +24,8 @@ function DashUsers() {
         if(!res.ok){
           setUsersError(data.message);
         }
-        console.log(data.users)
-        setUsers(data.users);
-      } catch (error) {
+        setUsers(data.datafromBknd.users);
+      } catch (error:any) {
         setUsersError(error.message);
       }
     }
@@ -42,12 +43,12 @@ function DashUsers() {
         setUsersError(data.message);
         return;
       }
-      if(data.posts.length >= 9){
+      if(data.datafromBknd.users.length >= 9){
         setShowMore(true);
       }
-      setUsers(prev=>([...prev,...data.users]));
+      setUsers(prev=>([...prev,...data.datafromBknd.users]));
       setUsersError(null);
-    } catch (error) {
+    } catch (error:any) {
       setUsersError(error.message);        
     }
   }
@@ -62,16 +63,16 @@ function DashUsers() {
         setUsersError(data.message);
         return;
       }
-      setUsers(prev=>prev.filter((user)=>user._id!==userIdDelete));
+      setUsers(prev=>prev.filter((user : User)=>user._id!==userIdDelete));
       setUsersError(null);
-    } catch (error) {
+    } catch (error:any) {
       setUsersError(error.message);        
     }
   }
 
   return (
     <div className="table-auto overflow-x-auto md:mx-auto p-3">
-      {currentUser.isAdmin && users.length >0 ?(
+      {currentUser?.isAdmin && users.length >0 ?(
         <>
          <Table hoverable className="shadow-md min-w-[800px]">
           <TableHead>
@@ -86,9 +87,9 @@ function DashUsers() {
           </TableHead>
            
             <TableBody  className=" dark:bg-blue-900">
-            {users.map(user=>(
+            {users.map((user : User)=>(
               <TableRow key={user._id} className="shadow-sm">
-                <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(user.createdAt as string).toLocaleDateString()}</TableCell>
                 <TableCell><img src={user.profilePic} alt="user-img" className="w-10 h-10 object-cover rounded-full" /></TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email}</TableCell>
@@ -107,7 +108,7 @@ function DashUsers() {
         <ModalBody>
           <div className="text-center">
             <HiOutlineExclamationCircle className="h-14 w-14 mb-4 mx-auto"/>
-              <h3 className="mb-5 text-lg text-blue-800">Are you sure you want to delete this post?</h3>
+              <h3 className="mb-5 text-lg text-blue-800">Are you sure you want to delete the account?</h3>
               <div className="flex justify-center gap-5">
                 <Button color='alternative' onClick={handleDelete}>Yes I'm sure</Button>
                 <Button color='default' onClick={()=>setShowModal(false)}>No I'm not</Button>

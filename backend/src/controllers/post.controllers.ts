@@ -17,7 +17,7 @@ export const createPost = async (req:AuthenticatedRequest ,res:Response<ApiRespo
 
     try{
         const savedPost = await newPost.save();
-        return res.status(201).json({success:true, data:savedPost});
+        return res.status(201).json({success:true, datafromBknd:savedPost});
     }catch(error:any){
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
@@ -47,7 +47,7 @@ export const getPosts = async (req:Request ,res:Response<ApiResponse>): Promise 
         const oneMonthAgo = new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
         const lastMonthPosts = await Post.countDocuments({createdAt:{$gte:oneMonthAgo}});
 
-        return res.status(200).json({success:true, data:{posts,totalPosts,lastMonthPosts}});
+        return res.status(200).json({success:true, datafromBknd:{posts,totalPosts,lastMonthPosts}});
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});   
     }
@@ -80,7 +80,7 @@ export const updatePost = async (req:AuthenticatedRequest ,res:Response<ApiRespo
             content:req.body.content
         }
       },{new:true});
-      return res.status(200).json({success:true, data:updatedPost});
+      return res.status(200).json({success:true, datafromBknd:updatedPost});
     } catch (error:any) {
       return res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
     }

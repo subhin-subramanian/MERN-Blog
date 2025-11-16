@@ -3,23 +3,24 @@ import { useEffect, useState } from "react"
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import { RootState } from "../redux/store";
+import { Post } from "../types/post";
 
 function DashPosts() {
 
-  const [posts,setPosts] = useState([]);
-  const {currentUser} = useSelector(state=>state.user);
-  const [postsError,setPostsError] = useState(null);
-  const [showMore,setShowMore] = useState(false);
-  const [showModal,setShowModal] = useState(false);
-  const [postIdDelete,setPostIdDelete] = useState(null);
+  const [posts,setPosts] = useState <Post[]>([]);
+  const {currentUser} = useSelector((state : RootState) =>state.user);
+  const [postsError,setPostsError] = useState <string | null> (null);
+  const [showMore,setShowMore] = useState <boolean> (false);
+  const [showModal,setShowModal] = useState <boolean> (false);
+  const [postIdDelete,setPostIdDelete] = useState <string | null> (null);
 
   // Fetchposts function with useEffect for getting the posts while opening the page
   useEffect(()=>{
     const fetchPosts = async ()=>{
       setPostsError(null);
       try {
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
+        const res = await fetch(`/api/post/getposts?userId=${currentUser?._id}`);
         const data = await res.json();
         if(!res.ok){
           setPostsError(data.message);
@@ -28,8 +29,8 @@ function DashPosts() {
         if(data.totalPosts > 9){   
           setShowMore(true);
         }
-        setPosts(data.posts);
-      } catch (error) {
+        setPosts(data.datafromBknd.posts);
+      } catch (error:any) {
         setPostsError(error.message);        
       }
     };
@@ -41,18 +42,18 @@ function DashPosts() {
   // Showmore function to display posts if total posts is more than 9
   const handleShowMore = async()=>{
     try {
-      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=9`);
+      const res = await fetch(`/api/post/getposts?userId=${currentUser?._id}&startIndex=9`);
       const data = await res.json();
       if(!res.ok){
         setPostsError(data.message);
         return;
       }
-      if(data.posts.length >= 9){
+      if(data.datafromBknd.posts.length >= 9){
         setShowMore(true);
       }
-      setPosts(prev=>([...prev,...data.posts]));
+      setPosts(prev=>([...prev,...data.datafromBknd.posts]));
       setPostsError(null);
-    } catch (error) {
+    } catch (error:any) {
       setPostsError(error.message);        
     }
   }
@@ -61,7 +62,7 @@ function DashPosts() {
   const handleDelete = async()=>{
     setShowModal(false);
     try {
-      const res = await fetch(`/api/post/delete/${postIdDelete}/${currentUser._id}`,{method:'DELETE'});
+      const res = await fetch(`/api/post/delete/${postIdDelete}/${currentUser?._id}`,{method:'DELETE'});
       const data = await res.json();
       if(!res.ok){
         setPostsError(data.message);
@@ -69,14 +70,14 @@ function DashPosts() {
       }
       setPosts(prev=>prev.filter((post)=>post._id!==postIdDelete));
       setPostsError(null);
-    } catch (error) {
+    } catch (error:any) {
       setPostsError(error.message);        
     }
   }
 
   return (
     <div className="table-auto overflow-x-auto md:mx-auto p-3">
-      {currentUser.isAdmin && posts.length >0 ?(
+      {currentUser?.isAdmin && posts.length >0 ?(
         <>
          <Table hoverable className="shadow-md min-w-[800px]">
           <TableHead>
@@ -93,7 +94,7 @@ function DashPosts() {
             <TableBody  className=" dark:bg-blue-900">
             {posts.map(post=>(
               <TableRow key={post._id} className="shadow-sm">
-                <TableCell>{new Date(post.updatedAt).toLocaleDateString()}</TableCell>
+                <TableCell>{new Date(post.updatedAt as string).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <Link to={`/post/${post.slug}`}>
                     <img src={post.image} alt="post-img" className="w-20 h-10 object-cover" />
@@ -103,7 +104,12 @@ function DashPosts() {
                     <Link to={`/post/${post.slug}`}>{post.title}</Link>
                 </TableCell>
                 <TableCell>{post.category}</TableCell>
-                <TableCell><span className="text-red-500 font-semibold hover:underline cursor-pointer" onClick={()=>{setShowModal(true),setPostIdDelete(post._id)}}>Delete</span></TableCell>
+                <TableCell>
+                  <span className="text-red-500 font-semibold hover:underline cursor-pointer" 
+                        onClick={()=>{setShowModal(true),setPostIdDelete(post._id as string)}}>
+                    Delete
+                  </span>
+                </TableCell>
                 <TableCell>
                 <Link to={`/update-post/${post._id}`}>
                   <span className="text-blue-500 font-semibold hover:underline cursor-pointer flex my-2">

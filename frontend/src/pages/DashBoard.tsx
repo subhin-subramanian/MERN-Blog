@@ -10,7 +10,7 @@ import DashBoardComp from "../components/DashBoardComp";
 function DashBoard() {
 
   const location = useLocation();
-  const [tab,setTab] = useState('');
+  const [tab,setTab] = useState <string>('');
 
   useEffect(()=>{
     const urlParams = new URLSearchParams(location.search);

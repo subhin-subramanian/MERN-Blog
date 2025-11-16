@@ -5,14 +5,24 @@ import { useSelector } from "react-redux";
 import { FaThumbsUp } from "react-icons/fa";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { RootState } from "../redux/store";
+import { User } from "../types/user";
+import { CommentInt } from "../types/comment";
 
-function AllComments({comment,onLike,onEdit,onDelete}) {
-    const [error,setError] = useState(null);
-    const [user,setUser] = useState({});
-    const [isEditing,setIsEditing] = useState(false);
+interface CommentProps {
+  comment: CommentInt;
+  onLike: (updatedComment: CommentInt) => void;
+  onEdit: (EditedComment: CommentInt) => void;
+  onDelete: (deletedCmmtId: string) => void;
+}
+
+function AllComments({comment,onLike,onEdit,onDelete} : CommentProps) {
+    const [error,setError] = useState <string | null> (null);
+    const [user,setUser] = useState <Partial<User>> ({});
+    const [isEditing,setIsEditing] = useState <boolean> (false);
     const [editedComment,setEditedComment] = useState(comment.content);
-    const [showModal,setShowModal] = useState(false);
-    const {currentUser} = useSelector(state=>state.user);
+    const [showModal,setShowModal] = useState <boolean> (false);
+    const {currentUser} = useSelector((state : RootState)=>state.user);
     const navigate = useNavigate();
     
     // Taking the user details of the comment
@@ -26,8 +36,8 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
                     setError(data.message);
                 }
                 setError(null);
-                setUser(data);
-            } catch (error) {
+                setUser(data.datafromBknd);
+            } catch (error:any) {
                 setError(error.message);
             }
         }
@@ -48,8 +58,8 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
             return;
         }
         setError(null);
-        onLike(data);
-      } catch (error) {
+        onLike(data.datafromBknd);
+      } catch (error:any) {
         setError(error.message);
       }
     }
@@ -68,8 +78,8 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
                 setError(data.message);
             }
             setError('');
-            onEdit(data);       
-        } catch (error) {
+            onEdit(data.datafromBknd);       
+        } catch (error:any) {
             setError(error.message); 
         }
     }
@@ -85,7 +95,7 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
               return;
             }
             onDelete(comment._id);
-          } catch (error) {
+          } catch (error:any) {
             setError(error.message) 
           }
     }
@@ -100,7 +110,7 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
         </div>
         {isEditing ?(
             <div className="max-w-6xl w-full my-5">
-              <Textarea className="w-full" placeholder={comment.content} rows='3' maxLength='300' onChange={(e)=>setEditedComment(e.target.value)} value={editedComment}/>
+              <Textarea className="w-full" placeholder={comment.content} rows={3} maxLength={300} onChange={(e)=>setEditedComment(e.target.value)} value={editedComment}/>
               <div className="flex justify-end p-4 gap-4">
                 <Button onClick={handleEditSave} color='default'>Save</Button>
                 <Button onClick={(e)=>setIsEditing(false)} className="bg-red-500 text-white">Cancel</Button>
@@ -110,10 +120,15 @@ function AllComments({comment,onLike,onEdit,onDelete}) {
             <div>
               <p className="text-sm py-2">{comment.content}</p>
               <div className="border-b border-blue-300 dark:border-gray-400"></div>
+
               <div className="flex gap-3 text-xs mt-2">
-                <button className={`text-gray-400 hover:text-blue-500 ${currentUser && comment.likes.includes  (currentUser._id) && 'text-blue-500'}`} type="button" onClick={handleLike}><FaThumbsUp/></button>
+                <button className={`text-gray-400 hover:text-blue-500 ${currentUser && comment.likes.includes  (currentUser._id) && 'text-blue-500'}`} 
+                        type="button" 
+                        onClick={handleLike}>
+                        <FaThumbsUp/>
+                </button>
                 <span>{(comment.numberOfLikes == 1 || comment.numberOfLikes ==0) ? comment.numberOfLikes+' '+'Like' :comment.numberOfLikes+' '+'Likes' }</span>
-                {(currentUser._id === comment.userId || currentUser.isAdmin) && (
+                {(currentUser?._id === comment.userId || currentUser?.isAdmin) && (
                   <div className=" flex gap-3">
                     <button className="cursor-pointer" type="button" onClick={(e)=>setIsEditing(true)}>Edit</button>
                     <button className="cursor-pointer" type="button" onClick={()=>setShowModal(true)}>Delete</button>

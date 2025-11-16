@@ -10,7 +10,7 @@ export const createComment = async(req:AuthenticatedRequest, res:Response<ApiRes
     try {
         const comment = new Comment({content,postId,userId});
         await comment.save();
-        return res.status(200).json({success:true,data:comment});
+        return res.status(200).json({success:true,datafromBknd:comment});
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
@@ -20,7 +20,7 @@ export const createComment = async(req:AuthenticatedRequest, res:Response<ApiRes
 export const getComments = async(req:Request, res:Response<ApiResponse>): Promise <Response> => {
     try {
         const comments = await Comment.find({postId:req.params.postId}).sort({createdAt:-1});
-        return res.status(200).json({success:true,data:comments});
+        return res.status(200).json({success:true,datafromBknd:comments});
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
@@ -43,7 +43,7 @@ export const likeComment = async(req:AuthenticatedRequest, res:Response<ApiRespo
             comment.likes.splice(userIndex,1);
         }
         await comment.save();
-        return res.status(200).json({success:true,data:comment}); 
+        return res.status(200).json({success:true,datafromBknd:comment}); 
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
     }
@@ -60,7 +60,7 @@ export const editComment = async(req:AuthenticatedRequest, res:Response<ApiRespo
              return res.status(407).json({success:false,message:"You can't edit this comment"});
         }
         const editedComment = await Comment.findByIdAndUpdate(req.params.commentId,{content:req.body.content},{new:true});
-        return res.status(200).json({success:true,data:editedComment}); 
+        return res.status(200).json({success:true,datafromBknd:editedComment}); 
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
     }
@@ -99,7 +99,7 @@ export const getAllComments = async(req:AuthenticatedRequest, res:Response<ApiRe
       const oneMonthAgo = new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
       const lastMonthComments = await Comment.countDocuments({createdAt:{$gte:oneMonthAgo}});
 
-      return res.status(200).json({success:true, data:{comments,totalComments,lastMonthComments}});       
+      return res.status(200).json({success:true, datafromBknd:{comments,totalComments,lastMonthComments}});       
     } catch (error:any) {
       return res.status(500).json({success:false,message: error.errmsg || 'server error'});  
     }

@@ -6,25 +6,26 @@ import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../redux/themeSlice";
 import { signOutFailure, signOutSuccess } from "../redux/userSlice";
 import { useEffect, useState } from "react";
+import { RootState } from "../redux/store";
 
 function Header() {
 
-  const {currentUser} = useSelector(state=>state.user);
+  const {currentUser} = useSelector((state : RootState)=>state.user);
   const dispatch = useDispatch();
-  const {theme} = useSelector(state=>state.theme);
+  const {theme} = useSelector((state : RootState)=>state.theme);
   const navigate = useNavigate();
   const location = useLocation();
-  const [searchTerm,setSearchTerm] = useState('');
+  const [searchTerm,setSearchTerm] = useState <string> ('');
 
   // Getting the queries in search window
   useEffect(()=>{
     const urlParams = new URLSearchParams(location.search);
     const searchTermFromUrl = urlParams.get('searchTerm');
-    setSearchTerm(searchTermFromUrl);
+    setSearchTerm(searchTermFromUrl || '');
   },[location.search]);
 
   // Function to go to search page when hit search button
-  const handleSearchSubmit = (e)=>{
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     const urlParams = new URLSearchParams(location.search);
     urlParams.set('searchTerm',searchTerm);
@@ -43,7 +44,7 @@ function Header() {
         dispatch(signOutSuccess(data));
         navigate('/sign-up');
       }
-    } catch (error) {
+    } catch (error:any) {
       dispatch(signOutFailure(error.message));
       console.log(error.message);
     }

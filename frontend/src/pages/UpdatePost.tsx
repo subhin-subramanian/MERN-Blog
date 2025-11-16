@@ -4,21 +4,22 @@ import { useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { RootState } from "../redux/store";
+import { Post } from "../types/post";
 
 function UpdatePost() {
-  const [formData,setFormData] = useState({ title: '',
+  
+  const [formData,setFormData] = useState <Post> ({ title: '',
     category: 'Uncategorized',
     image: '',
     content: ''
   });
-  const [imageUploadError,setImageUploadError] = useState(null);
-  const [updateError,setUpdateError] = useState(null);
-  const {currentUser} = useSelector(state=>state.user);
+  const [imageUploadError,setImageUploadError] = useState <string | null> (null);
+  const [updateError,setUpdateError] = useState <string | null> (null);
+  const {currentUser} = useSelector((state: RootState)=>state.user);
   const navigate = useNavigate();
-  const {postId} = useParams();
-  console.log(formData);
+  const {postId} = useParams <{ postId: string }> ();
   
-
   // Function to get the existing post data and useEffect to default rendering
   useEffect(()=>{
     const fetchPost=async ()=>{
@@ -29,9 +30,9 @@ function UpdatePost() {
           setUpdateError(data.message);
           return;
         }
-        setFormData(data.posts[0]);
-        console.log(data.posts[0])
-      } catch (error) {
+        setFormData(data.datafromBknd.posts[0]);
+        console.log(data.datafromBknd.posts[0])
+      } catch (error:any) {
         setUpdateError(error.message);
       }
     }
@@ -39,14 +40,14 @@ function UpdatePost() {
   },[postId])
 
   // Function to store formdata
-  const handleChange = (e)=>{
-    setFormData({...formData,[e.target.id]:e.target.value});
+  const handleChange = (e: React.ChangeEvent <HTMLInputElement | HTMLSelectElement | HTMLAreaElement>)=>{
+    setFormData({...formData,[e.target.id]:(e.target as any).value});
   }
 
   // Function for uploading cover image
-  const handleImageChange = async(e)=>{
+  const handleImageChange = async(e: React.ChangeEvent<HTMLInputElement>)=>{
     setImageUploadError(null);
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if(!file) return;
     if(file.size > 2*1024*1024){
       setImageUploadError('Image size must be less than 2mb');
@@ -56,7 +57,7 @@ function UpdatePost() {
     const reader = new FileReader();
 
     reader.onloadend = async()=>{
-      const base64String = reader.result;
+      const base64String = reader.result as string;
       try {
         const res = await fetch('/api/upload',{
           method:'POST',
@@ -69,9 +70,9 @@ function UpdatePost() {
           return;
         }
         if(data.imageUrl){ 
-          setFormData({...formData,image: data.imageUrl});
+          setFormData({...formData,image: data.datafromBknd.imageUrl});
         }
-      } catch (error) {
+      } catch (error:any) {
         setImageUploadError('Image upload failed'+error);
       }
     }
@@ -82,11 +83,11 @@ function UpdatePost() {
   }
 
   // Function for updating formdata to database
-  const handleSubmit = async(e)=>{
+  const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUpdateError(null);
     try {
-      const res = await fetch(`/api/post/update/${postId}/${currentUser._id}`,{
+      const res = await fetch(`/api/post/update/${postId}/${currentUser?._id}`,{
         method:'PUT',
         headers:{'Content-Type':'application/json'},
         body:JSON.stringify(formData)
@@ -96,9 +97,9 @@ function UpdatePost() {
         setUpdateError(data.message);
         return;
       }
-      setFormData(data);
-      navigate(`/post/${data.slug}`)
-    } catch (error) {
+      setFormData(data.datafromBknd);
+      navigate(`/post/${data.datafromBknd.slug}`)
+    } catch (error:any) {
       setUpdateError(error.message);
     }
   }
@@ -120,7 +121,7 @@ function UpdatePost() {
         </div>
 
         <div className="flex gap-4 items-center justify-between border-4 border-blue-500 border-dotted p-3">
-          <FileInput type='file' accept="image/*" onChange={handleImageChange}/>
+          <FileInput accept="image/*" onChange={handleImageChange}/>
           <Button type="button" outline >Upload Image</Button>
         </div>
 

@@ -1,8 +1,13 @@
-import React from 'react'
 import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store';
+import { ReactNode } from 'react';
 
-function ThemeProvider({children}) {
-    const {theme} = useSelector(state=>state.theme);
+interface ThemeProviderProps {
+  children: ReactNode
+}
+
+function ThemeProvider({children}:ThemeProviderProps) {
+    const {theme} = useSelector((state: RootState)=>state.theme);
     
   return (
     <div className={theme}>

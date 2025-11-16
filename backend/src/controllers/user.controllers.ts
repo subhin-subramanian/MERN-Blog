@@ -7,30 +7,37 @@ import dotenv from "dotenv";
 import type { Request, Response } from 'express';
 import type { AuthenticatedRequest } from '../types/express.js';
 import type { ApiResponse } from '../types/response.js';
+import { resolve } from 'path';
+import { rejects } from 'assert';
+import { error } from 'console';
 dotenv.config(); 
 
 const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
 
 // --------------------- SIGN UP ---------------------
 
-export const signUp = async(req:Request,res:Response<ApiResponse>): Promise<Response | void> =>{
-    const {username,email,password} = req.body;
-    if(!username || !email || !password || username === '' || password === '' || email === ''){
-        return res.status(400).json({success:false, message:'All fields are required'});
-    }
-    const hashedPassword = bcryptjs.hashSync(password,10);
-
-    // Check if the user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser){
-        return res.status(401).json({success: false,message: "User already exists, try with different email"});
-    }
-
-    // If not, create new user
-    const newUser = new User({username, email, password:hashedPassword})
-    
+export const signUp = async(req:Request,res:Response<ApiResponse>): Promise<Response | void> =>{ 
     try {
+        const {username,email,password} = req.body;
+
+        if(!username || !email || !password || username === '' || password === '' || email === ''){
+            return res.status(400).json({success:false, message:'All fields are required'});
+        }
+
+        const hashedPassword = bcryptjs.hashSync(password,10);
+
+        // Check if the user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser){   
+            return res.status(401).json({success: false,message: "User already exists, try with different email"});
+        }
+
+        // If not, create new user
+        const newUser = new User({username, email, password:hashedPassword})
+
         await newUser.save();
+        const userObj = newUser.toObject() as any;
+        delete userObj.password;
         return res.status(200).json({success:true, message:'Signup successfull'}); 
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
@@ -74,15 +81,34 @@ export const googleSignUp = async ( req:Request ,res:Response<ApiResponse>) : Pr
         return res.status(401).json({success: false, message: "User already exists, try with different email"});
     }
 
+    //uploading profilePic to cloudinary
+    let uploadedImageUrl = profilePic; //fallback if upload fails
+    if (profilePic && profilePic.includes("googleusercontent.com")){
+        try {
+            const response = await fetch(profilePic);
+            if(!response.ok) throw new Error("Failed to fetch google profile picture");
+
+            const arrayBuffer = await response.arrayBuffer();
+            const buffer = Buffer.from(arrayBuffer);
+
+            const uploadResult = await new Promise<any>((resolve,reject) => {
+                const stream = cloudinary.uploader.upload_stream({folder: "Blog_google_profiles"},
+                    (error,result) => {
+                        if(error) reject(error);
+                        else resolve(result);
+                    });
+                    stream.end(buffer);
+            });
+
+            uploadedImageUrl = uploadResult.secure_url;
+        } catch (error) {
+            console.error("Cloudinary upload failed, using Google profile pic as fallback:",error);
+        }
+    }
+
     // If not, create new user
     try {
-        //Save image to cloudinary
-        let uploadedImageUrl = "";
-        if(profilePic){
-            const uploadResponse = await cloudinary.uploader.upload(profilePic,{ folder:"Blog_google_profiles"});
-            uploadedImageUrl = uploadResponse.secure_url;
-        }
-        const newUser = new User({username, email, profilePic:uploadedImageUrl || profilePic, password:hashedPassword})
+        const newUser = new User({username, email, profilePic: profilePic || "", password:hashedPassword})
         await newUser.save();
         return res.status(200).json({success:true, message:'Signup successfull'});
     } catch (error:any) {
@@ -115,7 +141,7 @@ export const signIn = async (req:Request, res:Response<ApiResponse>): Promise<Re
         // token creation
         const token = jwt.sign({id:validUser._id,isAdmin:validUser.isAdmin},process.env.JWT_SECRET as string);
         const {password:pass,...rest} = validUser.toObject();
-        return res.status(200).cookie('access_token',token,{httpOnly:true}).json({success:true, data:rest});
+        return res.status(200).cookie('access_token',token,{httpOnly:true}).json({success:true, datafromBknd:rest});
 
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
@@ -162,7 +188,7 @@ export const googleSignIn = async (req:Request ,res:Response<ApiResponse>): Prom
         // token creation
         const accessToken = jwt.sign({id:validUser._id,isAdmin:validUser.isAdmin},process.env.JWT_SECRET as string);
         const {password:pass,...rest} = validUser.toObject();
-        return res.status(200).cookie('access_token',accessToken,{httpOnly:true}).json({success:true, data:rest});
+        return res.status(200).cookie('access_token',accessToken,{httpOnly:true}).json({success:true, datafromBknd:rest});
 
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
@@ -196,7 +222,7 @@ export const updateUser = async (req:AuthenticatedRequest, res:Response<ApiRespo
             return res.status(404).json({success:false, message:"User not found"});
         }    
         const {password,...rest} = updatedUser!.toObject();
-        return res.status(200).json({success:true, data:rest});
+        return res.status(200).json({success:true, datafromBknd:rest});
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'});
     }
@@ -249,7 +275,7 @@ export const getUsers = async (req:AuthenticatedRequest, res:Response<ApiRespons
         const oneMonthAgo = new Date(now.getFullYear(),now.getMonth()-1,now.getDate());
         const lastMonthUsers = await User.countDocuments({createdAt:{$gte:oneMonthAgo}});
 
-        return res.status(200).json({success:true, data:{users,totalUsers,lastMonthUsers}});
+        return res.status(200).json({success:true, datafromBknd:{users,totalUsers,lastMonthUsers}});
     } catch (error:any) {
         return res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
     }
@@ -265,7 +291,7 @@ export const getUser = async (req:Request, res:Response<ApiResponse>): Promise<R
         return res.status(408).json({success:false, message:"User not found"});
       }
       const {password,...rest} = user.toObject();
-      return res.status(200).json({success:false, data:rest});
+      return res.status(200).json({success:false, datafromBknd:rest});
     } catch (error:any) {
       return res.status(500).json({success:false,message: error.errmsg || 'server error'}); 
     }

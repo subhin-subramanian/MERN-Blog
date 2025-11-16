@@ -2,14 +2,19 @@ import { Button, Spinner } from 'flowbite-react';
 import { useEffect, useState } from 'react';
 import {Link, useParams} from 'react-router-dom'
 import CommentSection from '../components/CommentSection';
+import { Post } from '../types/post';
 
 function PostPage() {
-  const {postSlug} = useParams();
-  const [loading,setLoading] = useState(false);
-  const [error,setError] = useState(null);
-  const [post,setPost] = useState({});
+  const {postSlug} = useParams <{ postSlug:string}>();
+  const [loading,setLoading] = useState <boolean> (false);
+  const [error,setError] = useState <string | null> (null);
+  const [post,setPost] = useState <Post> ({
+    title: '',
+    category: 'Uncategorized',
+    image: '',
+    content: '',
+  });
 
-  
   // Fetchpost function with useEffect to get the post for rendering
   useEffect(()=>{
     const fetchpost = async()=>{
@@ -22,12 +27,12 @@ function PostPage() {
           setLoading(false);
           return;
         }
-        setPost(data.posts[0]);
+        setPost(data.datafromBknd.posts[0]);
         setLoading(false);
         setError(null);
-      } catch (error) {
+      } catch (error:any) {
         setLoading(false);
-        setError(data.message);
+        setError(error.message);
       }
     }
     fetchpost();
@@ -46,11 +51,11 @@ function PostPage() {
       </Link>
       <img src={post && post.image} alt='image' className='max-h-[300px] w-ful mt-10 p-3' />
       <div className="flex justify-between p-2 border-b border-blue-300">
-        <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
+        <span>{post?.createdAt && new Date(post.createdAt).toLocaleDateString()}</span>
         <span>{post.content && (post.content.length/1000).toFixed(0)} mins read</span>
       </div>
       <div className="p-3 max-w-2xl mx-auto w-full" dangerouslySetInnerHTML={{__html:post && post.content}}></div>
-      <CommentSection postId={post._id}/>
+      <CommentSection postId={post._id as string}/>
     </main>
   )
 }

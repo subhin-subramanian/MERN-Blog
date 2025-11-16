@@ -2,15 +2,22 @@ import { Button, Select, TextInput } from "flowbite-react";
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom";
 import PostCard from "../components/PostCard";
+import { Post } from "../types/post";
+
+interface SidebarData{
+  searchTerm: string;
+  sort: string;
+  category: string;
+}
 
 function Search() {
-    const [sidebarData,setSidebarData] = useState({searchTerm:'',sort:'desc',category:'uncategorized'});
-    const [posts,setPosts] = useState([]);
-    const [loading,setLoading] = useState(false);
-    const [error,setError] = useState(null);
+    const [sidebarData,setSidebarData] = useState <SidebarData> ({searchTerm:'',sort:'desc',category:'uncategorized'});
+    const [posts,setPosts] = useState <Post[]> ([]);
+    const [loading,setLoading] = useState <boolean> (false);
+    const [error,setError] = useState <string | null> (null);
     const location = useLocation();
     const navigate = useNavigate();
-    const [showMore,setShowMore] = useState(false);
+    const [showMore,setShowMore] = useState <boolean> (false);
     
     // Fetching posts as per searchQuery for page
     useEffect(()=>{
@@ -31,13 +38,13 @@ function Search() {
             const res = await fetch(`/api/post/getposts?${searchQuery}`);
             const data = await res.json();
             if(!res.ok){
-                setError(data);
+                setError(data.message);
                 return;
             }
-            setPosts(data.posts);
+            setPosts(data.datafromBknd.posts);
             setError(null);
             setLoading(false); 
-            if(data.posts.length>8){
+            if(data.datafromBknd.posts.length>8){
                 setShowMore(true);                                 
             } 
         }
@@ -47,7 +54,7 @@ function Search() {
     // Function to handle the show more button
     const handleShowMore = async ()=>{
       const urlParams = new URLSearchParams(location.search);   
-      urlParams.set('startIndex',9);
+      urlParams.set('startIndex',String(9));
       const searchQuery = urlParams.toString();
       try {
         const response = await fetch(`/api/post/getposts?${searchQuery}`);
@@ -57,21 +64,21 @@ function Search() {
             return;
         }
         setPosts((prev) => {
-          const updated = [...prev, ...data.posts];
+          const updated = [...prev, ...data.datafromBknd.posts];
           return updated;
         });
-        if(data.posts.length >= 9){
+        if(data.datafromBknd.posts.length >= 9){
             setShowMore(true);
         }else{
             setShowMore(false);
         }
-      } catch (error) {
+      } catch (error:any) {
         setError(error.message)
       }
     }
     
     // Function to reset sidebardata when we type in filters
-    const handleChange = (e)=>{
+    const handleChange = (e:React.ChangeEvent<HTMLInputElement | HTMLSelectElement>)=>{
         if(e.target.id==='searchTerm'){
             setSidebarData({...sidebarData,searchTerm:e.target.value});
         }
@@ -84,7 +91,7 @@ function Search() {
     }
     
     // Function to reload page with the applied filters
-    const handleSubmit = (e)=>{
+    const handleSubmit = (e:React.FormEvent)=>{
         e.preventDefault();
         const urlParams = new URLSearchParams(location.search);
         urlParams.set('searchTerm',sidebarData.searchTerm);
@@ -125,7 +132,7 @@ function Search() {
       {/* Post cards */}
       <div className="w-full">
         <h1 className="text-3xl font-semibold sm:border-b  border-blue-300 dark:border-blue-800 shadow-sm  p-3 mt-5">Post Results:</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-10 gap-7 place-items-center"> 
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-10 gap-7"> 
             {!loading && posts.length===0 && (<p className="text-xl">No posts found!</p>)}
             {loading && <p className="text-xl">Loading...</p>}
             {!loading && posts && posts.map((post)=><PostCard key={post._id} post={post}/>)}

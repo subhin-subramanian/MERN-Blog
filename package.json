@@ -8,7 +8,6 @@
     "dev": "tsx watch backend/src/server.ts",
     "build:backend": "tsc --project backend/tsconfig.json",
     "build:frontend": "npm run build --prefix frontend && npm run build --prefix frontend",
-    "build": "npm run build:backend && npm run build:frontend",
     "start": "node backend/dist/server.js"
   },
   "keywords": [],
