@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
 "scripts": {
-    "postinstall": "npm install --prefix frontend",
+    "postinstall": "npm install --prefix frontend --force",
     "build:frontend": "npm run build --prefix frontend",
     "build:backend": "tsc --project backend/tsconfig.json",
     "build": "npm run build:frontend && npm run build:backend",
