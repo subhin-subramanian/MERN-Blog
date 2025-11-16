@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.js",
   "type": "module",
- "scripts": {
-  "preinstall": "npm install --prefix frontend",
-  "dev": "tsx watch backend/src/server.ts",
-  "build:frontend": "npm run build --prefix frontend",
-  "build:backend": "tsc --project backend/tsconfig.json",
-  "build": "npm run build:frontend && npm run build:backend",
-  "start": "node backend/dist/server.js"
-},
+"scripts": {
+    "postinstall": "npm install --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "tsc --project backend/tsconfig.json",
+    "build": "npm run build:frontend && npm run build:backend",
+    "start": "node backend/dist/server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
