@@ -24,7 +24,7 @@
 
   // Serving frontend static files
   // This assumes your frontend build files are in a 'dist' folder inside 'frontend'
-  // const __rendirname = path.resolve();
+  const __rendirname = path.resolve();
 
   // Middleware setup
   app.use(express.json({limit:'10mb'})); // So that it can support large base64 images
@@ -41,16 +41,16 @@
   app.use('/api/comment',commentRouter);
 
   // absolute path to project root
-  // const rootDir = path.resolve(__dirname, "..", "..");
+  const rootDir = path.resolve(__dirname, "..", "..");
 
   // frontend/dist inside project root
-  // const frontendPath = path.join(rootDir, "frontend", "dist");
+  const frontendPath = path.join(rootDir, "frontend", "dist");
 
-  // app.use(express.static(frontendPath));
+  app.use(express.static(frontendPath));
 
-  // app.get("/*name", (_req: Request, res: Response) => {
-  //   res.sendFile(path.join(frontendPath, "index.html"));
-  // });
+  app.get("/*name", (_req: Request, res: Response) => {
+    res.sendFile(path.join(frontendPath, "index.html"));
+  });
 
   // Connecting to mongodb database
   const mongoURL = process.env.MONGO ?? "";
